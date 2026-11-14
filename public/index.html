@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Claudo-MD</title>
+<style>
+:root{--bg:#0d0f14;--card:#151922;--line:#262c3a;--tx:#e8eaf0;--mut:#8b93a7;--ac:#d4a373}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(900px 500px at 15% -10%,#2a2118,var(--bg));color:var(--tx);font:16px/1.5 system-ui,sans-serif}
+.c{width:min(420px,100%);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px}
+h1{margin:0;font-size:1.4rem;letter-spacing:.02em}p{color:var(--mut);margin:4px 0 0;font-size:.9rem}
+.s{margin:18px 0;padding:10px 14px;border:1px solid var(--line);border-radius:12px;display:flex;gap:10px;align-items:center;font-size:.92rem}
+.d{width:10px;height:10px;border-radius:50%;background:var(--mut)}.d.ok{background:#4ade80}.d.w{background:#f59e0b}.d.b{background:#f87171}
+input,button{width:100%;font:inherit;border-radius:12px;padding:12px 14px;border:1px solid var(--line)}input{background:#0d0f14;color:var(--tx);margin:6px 0 10px}
+button{background:var(--ac);color:#2a1d10;font-weight:700;border:0;cursor:pointer}button.g{background:transparent;color:var(--ac);border:1px solid var(--line);margin-top:10px}button:disabled{opacity:.5}
+#qr{display:block;margin:0 auto 12px;width:220px;background:#fff;padding:10px;border-radius:12px}
+.code{margin-top:12px;padding:14px;border:1px dashed var(--ac);border-radius:12px;text-align:center;font-size:1.7rem;letter-spacing:.14em;font-weight:800}
+</style></head><body><main class="c">
+<h1 id="n">Claudo-MD</h1><p>Link your WhatsApp to start</p>
+<div class="s"><span class="d" id="d"></span><span id="t">Loading</span></div>
+<img id="qr" alt="QR" hidden>
+<label><small>Phone, country code, no +</small><input id="num" inputmode="numeric" placeholder="923001234567"></label>
+<button id="go">Get pairing code</button><div class="code" id="code" hidden></div>
+<button class="g" id="clr">Clear session</button>
+</main><script>
+const $=i=>document.getElementById(i);
+async function r(){try{const d=await(await fetch('/api/status')).json();$('n').textContent=d.botName;if(!$('num').value&&d.pairNumber)$('num').value=d.pairNumber;
+$('d').className='d '+(d.connected?'ok':d.socketReady?'w':d.lastError?'b':'w');
+$('t').textContent=d.connected?'Connected'+(d.user&&d.user.id?' · '+d.user.id.split(':')[0]:''):(d.message||'Starting');
+$('qr').hidden=!(d.lastQrDataUrl&&!d.connected);if(!$('qr').hidden)$('qr').src=d.lastQrDataUrl;
+if(d.pairingCode&&!d.connected){$('code').hidden=false;$('code').textContent=d.pairingCode}$('go').disabled=d.connected||!d.socketReady}catch(e){$('t').textContent='Offline'}}
+$('go').onclick=async()=>{$('go').disabled=true;try{const d=await(await fetch('/api/request-code',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number:$('num').value})})).json();if(!d.ok)throw new Error(d.error);$('code').hidden=false;$('code').textContent=d.code}catch(e){alert(e.message)}r()};
+$('clr').onclick=async()=>{if(confirm('Clear session and re-pair?')){await fetch('/api/clear-session',{method:'POST'});$('code').hidden=true;setTimeout(r,1500)}};
+r();setInterval(r,2000)
+</script></body></html>

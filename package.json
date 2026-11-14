@@ -1,0 +1,10 @@
+{
+  "name": "claudo-md",
+  "version": "0.1.0",
+  "description": "Claudo-MD: WhatsApp multi-device bot with native interactive menus, mini apps and channel forwarding",
+  "main": "index.js",
+  "scripts": { "start": "node index.js", "test": "node --test tests/*.test.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "baileys": "7.0.0-rc14", "express": "^4.21.2", "pino": "^9.6.0", "qrcode": "^1.5.4" },
+  "license": "MIT"
+}
