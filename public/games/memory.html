@@ -1,0 +1,28 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Memory</title><style>
+:root{--bg:#0e1116;--card:#171b23;--line:#262c38;--tx:#e8ecf4;--mut:#8b95a8;--ac:#7cf0c0;--ac2:#6aa8ff;--bad:#ff7a8a}
+@media(prefers-color-scheme:light){:root{--bg:#f3f5f9;--card:#fff;--line:#dde2ec;--tx:#141922;--mut:#5d687c;--ac:#0a9c6b;--ac2:#2b6be0;--bad:#d6334a}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{display:flex;flex-direction:column;align-items:center;padding:18px 16px 28px;gap:14px;user-select:none;touch-action:manipulation}
+h1{margin:0;font-size:20px;letter-spacing:.14em;text-transform:uppercase}
+h1 small{display:block;font-size:11px;font-weight:500;color:var(--mut);letter-spacing:.2em;margin-top:2px}
+.bar{display:flex;gap:10px;width:100%;max-width:420px}
+.pill{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px;text-align:center}
+.pill b{display:block;font-size:20px}.pill span{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+button{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 16px;cursor:pointer}
+button.pri{background:var(--ac);color:#06130d;border-color:transparent;font-weight:700}
+button:active{transform:scale(.97)}
+.msg{min-height:24px;color:var(--mut);letter-spacing:.06em}
+.g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:min(90vw,400px)}
+.k{aspect-ratio:1;border-radius:16px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:min(10vw,40px);color:transparent;cursor:pointer;transition:.2s}
+.k.f{color:var(--ac2);background:color-mix(in srgb,var(--ac2) 14%,var(--card))}.k.d{color:var(--ac);border-color:var(--ac);background:color-mix(in srgb,var(--ac) 14%,var(--card))}
+</style></head><body>
+<h1>Memory<small>Match all the pairs</small></h1>
+<div class="bar"><div class="pill"><b id="mv">0</b><span>Moves</span></div><div class="pill"><b id="bs">-</b><span>Best</span></div></div>
+<div class="g" id="g"></div><div class="msg" id="m"></div><button class="pri" id="r">New game</button>
+<script>
+const G='◆ ● ▲ ■ ★ ✦ ☾ ☼'.split(' ');let c,fl,moves,done,lock,best=+(localStorage.getItem('mem')||0);if(best)bs.textContent=best;
+function reset(){c=[...G,...G].sort(()=>Math.random()-.5);fl=[];moves=0;done=0;lock=0;mv.textContent=0;m.textContent='';g.innerHTML='';c.forEach((v,i)=>{const d=document.createElement('div');d.className='k';d.textContent=v;d.onclick=()=>tap(d,i);g.appendChild(d)})}
+function tap(d,i){if(lock||d.classList.contains('f')||d.classList.contains('d'))return;d.classList.add('f');fl.push([d,i]);if(fl.length==2){moves++;mv.textContent=moves;const[[a,i1],[b,i2]]=fl;if(c[i1]==c[i2]){a.className=b.className='k d';fl=[];if(++done==8){m.textContent='Solved in '+moves+' moves';if(!best||moves<best){best=moves;bs.textContent=best;try{localStorage.setItem('mem',best)}catch(e){}}}}else{lock=1;setTimeout(()=>{a.classList.remove('f');b.classList.remove('f');fl=[];lock=0},700)}}}
+r.onclick=reset;reset();
+</script></body></html>

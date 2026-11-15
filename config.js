@@ -7,5 +7,6 @@ module.exports = {
   port: Number(process.env.PORT) || 3000,
   host: '0.0.0.0',
   sessionDir: process.env.SESSION_DIR || './session',
+  publicUrl: (process.env.PUBLIC_URL || '').replace(/\/$/, ''),
   adminPassword: process.env.ADMIN_PASSWORD || '',
 };
