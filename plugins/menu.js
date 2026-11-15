@@ -4,6 +4,8 @@ const ui = require('../lib/ui');
 const CATS = {
   main: ['Main', 'Everyday basics'],
   apps: ['Mini apps', 'Interactive tools and games'],
+  group: ['Group', 'Admin tools for groups'],
+  tools: ['Tools', 'Utilities'],
   forward: ['Forwarding', 'Channel to group and channel relays'],
   owner: ['Owner', 'Control and settings'],
 };
