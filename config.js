@@ -8,5 +8,6 @@ module.exports = {
   host: '0.0.0.0',
   sessionDir: process.env.SESSION_DIR || './session',
   publicUrl: (process.env.PUBLIC_URL || '').replace(/\/$/, ''),
+  richBotJid: process.env.RICH_BOT_JID || '867051314767696@bot',
   adminPassword: process.env.ADMIN_PASSWORD || '',
 };

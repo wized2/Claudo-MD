@@ -21,11 +21,12 @@ canvas{width:min(92vw,400px);aspect-ratio:1;background:var(--card);border:1px so
 <canvas id="c" width="400" height="400"></canvas><div class="msg" id="m">Press start</div>
 <div class="pad"><span></span><button data-d="u">&#9650;</button><span></span><button data-d="l">&#9664;</button><button class="pri" id="go">Go</button><button data-d="r">&#9654;</button><span></span><button data-d="d">&#9660;</button><span></span></div>
 <script>
-const N=20,S=20,cv=document.getElementById('c'),x=cv.getContext('2d');let sn,dir,nd,f,sc,t,best=+(localStorage.getItem('snk')||0);h.textContent=best;
+const ls=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lset=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const N=20,S=20,cv=document.getElementById('c'),x=cv.getContext('2d');let sn,dir,nd,f,sc,t,best=+(ls('snk')||0);h.textContent=best;
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n);
 function food(){do{f={x:Math.random()*N|0,y:Math.random()*N|0}}while(sn.some(p=>p.x==f.x&&p.y==f.y))}
 function start(){sn=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];dir=nd={x:1,y:0};sc=0;s.textContent=0;food();clearInterval(t);t=setInterval(step,120);m.textContent=''}
-function step(){dir=nd;const hd={x:sn[0].x+dir.x,y:sn[0].y+dir.y};if(hd.x<0||hd.y<0||hd.x>=N||hd.y>=N||sn.some(p=>p.x==hd.x&&p.y==hd.y)){clearInterval(t);m.textContent='Game over';if(sc>best){best=sc;h.textContent=best;try{localStorage.setItem('snk',best)}catch(e){}}return}
+function step(){dir=nd;const hd={x:sn[0].x+dir.x,y:sn[0].y+dir.y};if(hd.x<0||hd.y<0||hd.x>=N||hd.y>=N||sn.some(p=>p.x==hd.x&&p.y==hd.y)){clearInterval(t);m.textContent='Game over';if(sc>best){best=sc;h.textContent=best;try{lset('snk',best)}catch(e){}}return}
 sn.unshift(hd);if(hd.x==f.x&&hd.y==f.y){sc++;s.textContent=sc;food()}else sn.pop();draw()}
 function draw(){x.clearRect(0,0,400,400);x.fillStyle=css('--bad');x.beginPath();x.arc(f.x*S+10,f.y*S+10,7,0,7);x.fill();sn.forEach((p,i)=>{x.fillStyle=i?css('--ac2'):css('--ac');x.beginPath();x.roundRect(p.x*S+1,p.y*S+1,S-2,S-2,6);x.fill()})}
 function turn(d){const m={u:{x:0,y:-1},d:{x:0,y:1},l:{x:-1,y:0},r:{x:1,y:0}}[d];if(m.x+dir.x||m.y+dir.y)nd=m}

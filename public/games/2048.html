@@ -22,12 +22,13 @@ button:active{transform:scale(.97)}
 <div class="g" id="g"></div><div class="msg" id="m"></div>
 <div class="pad"><span></span><button data-d="u">&#9650;</button><span></span><button data-d="l">&#9664;</button><button class="pri" id="r">New</button><button data-d="r">&#9654;</button><span></span><button data-d="d">&#9660;</button><span></span></div>
 <script>
-let a,sc,best=+(localStorage.getItem('b2048')||0);h.textContent=best;
+const ls=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lset=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+let a,sc,best=+(ls('b2048')||0);h.textContent=best;
 const col=v=>v?`hsl(${160+Math.log2(v)*18} 60% ${Math.max(28,70-Math.log2(v)*3)}%)`:'';
 function add(){const e=[];a.forEach((r,i)=>r.forEach((v,j)=>v||e.push([i,j])));if(!e.length)return;const[p,q]=e[Math.random()*e.length|0];a[p][q]=Math.random()<.9?2:4}
 function draw(){g.innerHTML='';a.flat().forEach(v=>{const d=document.createElement('div');d.className='t';d.textContent=v||'';d.style.background=col(v);d.style.color=v>4?'#fff':'var(--tx)';g.appendChild(d)});s.textContent=sc}
 function slide(r){let n=r.filter(Boolean),g=0;for(let i=0;i<n.length-1;i++)if(n[i]==n[i+1]){n[i]*=2;g+=n[i];n.splice(i+1,1)}while(n.length<4)n.push(0);return[n,g]}
-function mv(d){const b=JSON.stringify(a);let gain=0;const rot=m=>m[0].map((_,i)=>m.map(r=>r[i]).reverse());let m=a;const k={l:0,u:3,r:2,d:1}[d];for(let i=0;i<k;i++)m=rot(m);m=m.map(r=>{const[n,g]=slide(r);gain+=g;return n});for(let i=0;i<(4-k)%4;i++)m=rot(m);a=m;if(JSON.stringify(a)==b)return;sc+=gain;add();draw();if(sc>best){best=sc;h.textContent=best;try{localStorage.setItem('b2048',best)}catch(e){}}
+function mv(d){const b=JSON.stringify(a);let gain=0;const rot=m=>m[0].map((_,i)=>m.map(r=>r[i]).reverse());let m=a;const k={l:0,u:3,r:2,d:1}[d];for(let i=0;i<k;i++)m=rot(m);m=m.map(r=>{const[n,g]=slide(r);gain+=g;return n});for(let i=0;i<(4-k)%4;i++)m=rot(m);a=m;if(JSON.stringify(a)==b)return;sc+=gain;add();draw();if(sc>best){best=sc;h.textContent=best;try{lset('b2048',best)}catch(e){}}
 if(a.flat().includes(2048))m_.textContent='You made 2048';else if(!can())m_.textContent='No moves left'}
 const m_=document.getElementById('m');
 function can(){for(let i=0;i<4;i++)for(let j=0;j<4;j++){if(!a[i][j])return 1;if(a[i][j+1]==a[i][j]||(a[i+1]&&a[i+1][j]==a[i][j]))return 1}return 0}

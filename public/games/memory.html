@@ -21,8 +21,9 @@ button:active{transform:scale(.97)}
 <div class="bar"><div class="pill"><b id="mv">0</b><span>Moves</span></div><div class="pill"><b id="bs">-</b><span>Best</span></div></div>
 <div class="g" id="g"></div><div class="msg" id="m"></div><button class="pri" id="r">New game</button>
 <script>
-const G='◆ ● ▲ ■ ★ ✦ ☾ ☼'.split(' ');let c,fl,moves,done,lock,best=+(localStorage.getItem('mem')||0);if(best)bs.textContent=best;
+const ls=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lset=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const G='◆ ● ▲ ■ ★ ✦ ☾ ☼'.split(' ');let c,fl,moves,done,lock,best=+(ls('mem')||0);if(best)bs.textContent=best;
 function reset(){c=[...G,...G].sort(()=>Math.random()-.5);fl=[];moves=0;done=0;lock=0;mv.textContent=0;m.textContent='';g.innerHTML='';c.forEach((v,i)=>{const d=document.createElement('div');d.className='k';d.textContent=v;d.onclick=()=>tap(d,i);g.appendChild(d)})}
-function tap(d,i){if(lock||d.classList.contains('f')||d.classList.contains('d'))return;d.classList.add('f');fl.push([d,i]);if(fl.length==2){moves++;mv.textContent=moves;const[[a,i1],[b,i2]]=fl;if(c[i1]==c[i2]){a.className=b.className='k d';fl=[];if(++done==8){m.textContent='Solved in '+moves+' moves';if(!best||moves<best){best=moves;bs.textContent=best;try{localStorage.setItem('mem',best)}catch(e){}}}}else{lock=1;setTimeout(()=>{a.classList.remove('f');b.classList.remove('f');fl=[];lock=0},700)}}}
+function tap(d,i){if(lock||d.classList.contains('f')||d.classList.contains('d'))return;d.classList.add('f');fl.push([d,i]);if(fl.length==2){moves++;mv.textContent=moves;const[[a,i1],[b,i2]]=fl;if(c[i1]==c[i2]){a.className=b.className='k d';fl=[];if(++done==8){m.textContent='Solved in '+moves+' moves';if(!best||moves<best){best=moves;bs.textContent=best;try{lset('mem',best)}catch(e){}}}}else{lock=1;setTimeout(()=>{a.classList.remove('f');b.classList.remove('f');fl=[];lock=0},700)}}}
 r.onclick=reset;reset();
 </script></body></html>
