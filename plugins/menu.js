@@ -4,9 +4,10 @@ const ui = require('../lib/ui');
 const CATS = {
   main: ['Main', 'Everyday basics'],
   apps: ['Mini apps', 'Interactive tools and games'],
-  group: ['Group', 'Admin tools for groups'],
-  tools: ['Tools', 'Utilities'],
   forward: ['Forwarding', 'Channel to group and channel relays'],
+  group: ['Group', 'Admin tools for groups'],
+  download: ['Download', 'YouTube and TikTok'],
+  tools: ['Tools', 'Utilities'],
   owner: ['Owner', 'Control and settings'],
 };
 
