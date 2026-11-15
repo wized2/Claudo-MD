@@ -7,6 +7,7 @@ const CATS = {
   forward: ['Forwarding', 'Channel to group and channel relays'],
   group: ['Group', 'Admin tools for groups'],
   download: ['Download', 'YouTube and TikTok'],
+  info: ['Info', 'Weather, translate, wiki, dictionary, currency'],
   tools: ['Tools', 'Utilities'],
   owner: ['Owner', 'Control and settings'],
 };
