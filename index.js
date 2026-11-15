@@ -9,7 +9,9 @@ const msgStore = require('./lib/msgStore');
 const antiBan = require('./lib/antiBan');
 const channelPoll = require('./lib/channelPoll');
 const engine = require('./lib/cfwdEngine');
+const forward = require('./lib/forward');
 const botState = require('./lib/botState');
+const protect = require('./lib/protect');
 const { isOwner } = require('./lib/owner');
 const ui = require('./lib/ui');
 const baileys = require('baileys');
@@ -131,6 +133,8 @@ async function startBot() {
     }
   });
 
+  sock.ev.on('group-participants.update', (ev) => { protect.onParticipants(sock, ev, config).catch((e) => console.warn('[welcome]', e.message)); });
+
   sock.ev.on('messages.upsert', async ({ messages, type }) => {
     for (const m of messages || []) {
       try {
@@ -145,6 +149,10 @@ async function startBot() {
         if (type !== 'notify' && type !== 'append') continue;
         const text = extractText(m.message).trim();
         if (!text) continue;
+        if (jid.endsWith('@g.us') && !botState.isIdle()) {
+          const r = await protect.checkAntiLink(sock, m, text, { config }).catch(() => 'ignored');
+          if (r !== 'ignored') continue;
+        }
         const hit = matchPlugin(plugins, text, config.prefix);
         if (!hit) continue;
         if (botState.isIdle() && !CONTROL.has(hit.plugin.name)) continue;
