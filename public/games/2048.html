@@ -14,11 +14,13 @@ button.pri{background:var(--ac);color:#06130d;border-color:transparent;font-weig
 button:active{transform:scale(.97)}
 .msg{min-height:24px;color:var(--mut);letter-spacing:.06em}
 .g{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:8px;width:min(90vw,400px);aspect-ratio:1;background:var(--line);padding:8px;border-radius:18px;touch-action:none}
+.pad{display:grid;grid-template-columns:repeat(3,72px);grid-template-rows:repeat(3,56px);gap:8px}.pad button{font-size:22px;padding:0}
 .t{border-radius:12px;background:var(--card);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:min(8vw,32px)}
 </style></head><body>
-<h1>2048<small>Swipe or use arrow keys</small></h1>
+<h1>2048<small>Use the pad, swipe, or arrow keys</small></h1>
 <div class="bar"><div class="pill"><b id="s">0</b><span>Score</span></div><div class="pill"><b id="h">0</b><span>Best</span></div></div>
-<div class="g" id="g"></div><div class="msg" id="m"></div><button class="pri" id="r">New game</button>
+<div class="g" id="g"></div><div class="msg" id="m"></div>
+<div class="pad"><span></span><button data-d="u">&#9650;</button><span></span><button data-d="l">&#9664;</button><button class="pri" id="r">New</button><button data-d="r">&#9654;</button><span></span><button data-d="d">&#9660;</button><span></span></div>
 <script>
 let a,sc,best=+(localStorage.getItem('b2048')||0);h.textContent=best;
 const col=v=>v?`hsl(${160+Math.log2(v)*18} 60% ${Math.max(28,70-Math.log2(v)*3)}%)`:'';
@@ -30,6 +32,6 @@ if(a.flat().includes(2048))m_.textContent='You made 2048';else if(!can())m_.text
 const m_=document.getElementById('m');
 function can(){for(let i=0;i<4;i++)for(let j=0;j<4;j++){if(!a[i][j])return 1;if(a[i][j+1]==a[i][j]||(a[i+1]&&a[i+1][j]==a[i][j]))return 1}return 0}
 function reset(){a=Array.from({length:4},()=>Array(4).fill(0));sc=0;m_.textContent='';add();add();draw()}
-r.onclick=reset;addEventListener('keydown',e=>{const k={ArrowLeft:'l',ArrowRight:'r',ArrowUp:'u',ArrowDown:'d'}[e.key];if(k){mv(k);e.preventDefault()}});
+r.onclick=reset;document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>mv(b.dataset.d));addEventListener('keydown',e=>{const k={ArrowLeft:'l',ArrowRight:'r',ArrowUp:'u',ArrowDown:'d'}[e.key];if(k){mv(k);e.preventDefault()}});
 let sx,sy;g.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY});g.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;mv(Math.abs(dx)>Math.abs(dy)?(dx>0?'r':'l'):(dy>0?'d':'u'))});reset();
 </script></body></html>

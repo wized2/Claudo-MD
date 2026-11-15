@@ -5,6 +5,6 @@
   "main": "index.js",
   "scripts": { "start": "node index.js", "test": "node --test tests/*.test.js" },
   "engines": { "node": ">=18" },
-  "dependencies": { "baileys": "7.0.0-rc14", "express": "^4.21.2", "pino": "^9.6.0", "qrcode": "^1.5.4" },
+  "dependencies": { "baileys": "7.0.0-rc14", "express": "^4.21.2", "pino": "^9.6.0", "qrcode": "^1.5.4", "sharp": "^0.35.5" },
   "license": "MIT"
 }
