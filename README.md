@@ -10,11 +10,18 @@ WhatsApp multi-device bot (Baileys) with native interactive menus, mini apps and
 - Hot-reloading plugins in `plugins/`
 
 ## Run
-```
+```bash
 npm install
 OWNER=923001234567 npm start
 ```
 Open `http://localhost:3000`, enter your number and link with the pairing code.
+
+### 24/7 Hosting (KataBump / Free VPS / PaaS)
+Run with the built-in single-file supervisor which auto-restarts on crash and maintains state backups:
+```bash
+node katabump.js
+```
+State, routes, and credentials are automatically saved to `.claudo.backup.json` so you never lose your configuration or pairing on server reboot.
 
 ## Commands
 
@@ -34,14 +41,14 @@ Open `http://localhost:3000`, enter your number and link with the pairing code.
 | `.apps` | | Interactive mini apps launcher |
 | `.dice [n]` | | Roll 1–6 dice |
 | `.coin` | `flip` | Flip a coin |
-| `.rps rock\|paper\|scissors` | | Rock paper scissors vs bot |
+| `.rps rock|paper|scissors` | | Rock paper scissors vs bot |
 | `.calc <expr>` | `math` | Calculator — `calc 12*(3+4)` |
-| `.ttt [bot\|join\|1-9\|end]` | `tictactoe` | Tic tac toe (vs player or bot) |
+| `.ttt [bot|join|1-9|end]` | `tictactoe` | Tic tac toe (vs player or bot) |
 | `.guess [number]` | | Guess the number 1–100 |
 | `.trivia` | `quiz` | Multiple choice trivia question |
 | `.quote` | `q`, `inspire` | Random inspirational quote |
 | `.8ball <question>` | `ball`, `ask` | Ask the magic 8-ball |
-| `.choose a \| b \| c` | `pick`, `or` | Randomly pick one of your options |
+| `.choose a | b | c` | `pick`, `or` | Randomly pick one of your options |
 
 ### Info
 | Command | Aliases | Description |
@@ -85,8 +92,8 @@ Open `http://localhost:3000`, enter your number and link with the pairing code.
 | `.del` | Delete a replied message |
 | `.warn` | Warn a member (3 warns = remove) |
 | `.warns [reset]` | View or clear warnings |
-| `.antilink off\|warn\|kick` | Link protection |
-| `.welcome on\|off` | Welcome new members |
+| `.antilink off|warn|kick` | Link protection |
+| `.welcome on|off` | Welcome new members |
 
 ### Channel Forwarding
 | Command | Description |
@@ -104,8 +111,10 @@ Open `http://localhost:3000`, enter your number and link with the pairing code.
 | `.stop` | Pause bot (ignore non-owner messages) |
 | `.start` | Resume bot |
 | `.status` | Show idle/running state |
-| `.ui text\|native` | Switch to plain text or native UI mode |
+| `.ui text|native` | Switch to plain text or native UI mode |
 | `.reload` | Reload all plugins from disk |
+| `.backup [send]` | Backup session and data into `.claudo.backup.json` (sends file in DM) |
+| `.restore` | Restore state and session from `.claudo.backup.json` (or reply to file) |
 
 ## Plugin format
 ```js
@@ -136,4 +145,5 @@ Use `lib/native.js` (`buttons`, `list`) for interactive replies; use a full comm
 | `PORT` | `3000` | Web UI port |
 | `PUBLIC_URL` | — | Externally reachable URL for QR endpoint |
 | `SESSION_DIR` | `./session` | Where Baileys saves auth credentials |
+| `BACKUP_FILE` | `.claudo.backup.json` | Path to persistent backup file |
 | `ADMIN_PASSWORD` | — | Password for the web admin panel |
