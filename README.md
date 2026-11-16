@@ -68,3 +68,12 @@ Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot
 
 ## Islamic category
 `.prayer`, `.ayah`, `.hadith [number|random]` (Sahih al-Bukhari, Arabic with Urdu translation via the fawazahmed0 hadith API on jsDelivr), `.qibla [city]` (bearing from aladhan.com) and the `.mini tasbih` counter (33, 99 or 100 targets, rounds, undo). They appear under `.menu islam`.
+
+## Text tools, reminders and more
+| Command | What it does |
+|---|---|
+| `.fancy <text>` | Stylish text in 7 fonts |
+| `.reverse`, `.base64 enc\|dec`, `.morse`, `.binary`, `.hash [md5\|sha1\|sha256]` | Offline text utilities (most also work on a replied message) |
+| `.ssweb <url>` | Website screenshot (thum.io) |
+| `.remind 10m <note>`, `.remind list`, `.remind cancel <id>` | Reminders, saved to disk and re-armed after a restart (1 second to 24 days) |
+| `.asma [1-99\|random]` | The 99 names of Allah (Arabic, transliteration, English meaning) from aladhan.com |

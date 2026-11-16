@@ -360,3 +360,29 @@ test('hadith and qibla helpers', async () => {
   assert.equal(await api.qibla(NaN, 1), null);
   assert.equal(api.compass(267.7), 'W'); assert.equal(api.compass(0), 'N'); assert.equal(api.compass(359), 'N');
 });
+
+test('text tools, reminders and asma', async () => {
+  const fs = require('fs'), os = require('os');
+  process.env.FORWARDS_JSON = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'rm-')), 'channel-forwards.json');
+  const fx = require('../lib/textfx'), remind = require('../lib/remind'), api = require('../lib/apis');
+  assert.equal(fx.fancy('Hi 1', 'bold'), '𝗛𝗶 𝟭'); assert.equal(fx.reverse('abc'), 'cba');
+  assert.equal(fx.toMorse('sos'), '... --- ...'); assert.equal(fx.fromMorse('... --- ... / .-'), 'sos a');
+  assert.equal(fx.fromBinary(fx.toBinary('Hi')), 'Hi'); assert.equal(fx.hash('md5', 'hello'), '5d41402abc4b2a76b9719d911017c592');
+  assert.equal(remind.parseDelay('1h 30m'), 5400000); assert.equal(remind.parseDelay('10m'), 600000); assert.equal(remind.parseDelay('soon'), 0);
+  const sent = []; const sock = { sendMessage: async (j, c) => { sent.push([j, c]); } };
+  const r = remind.add(sock, { jid: 'a@s.whatsapp.net', who: 'a@s.whatsapp.net', text: 'tea', ms: 1000 });
+  assert.equal(remind.forChat('a@s.whatsapp.net').length, 1);
+  await new Promise((x) => setTimeout(x, 1300));
+  assert.equal(sent[0][1].text, 'Reminder: tea'); assert.equal(remind.forChat('a@s.whatsapp.net').length, 0);
+  assert.throws(() => remind.add(sock, { jid: 'a', text: '', ms: 5 }));
+  const r2 = remind.add(sock, { jid: 'b', text: 'x', ms: 60000 }); assert.equal(remind.cancel('b', r2.id), true); remind._clear();
+  const a = await api.asma(1, async () => ({ ok: true, status: 200, json: async () => ({ data: [{ name: 'x', number: 1, transliteration: 'Ar Rahmaan', en: { meaning: 'The Beneficent' } }] }) }));
+  assert.equal(a.meaning, 'The Beneficent'); assert.equal(await api.asma(100), null);
+  const { loadPlugins } = require('../lib/pluginLoader');
+  const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+  for (const n of ['fancy', 'reverse', 'base64', 'morse', 'binary', 'hash', 'ssweb', 'remind', 'asma']) assert.ok(ps.find((x) => x.name === n), n);
+  const out = []; const ctx = { jid: 'a@s.whatsapp.net', sender: 'a@s.whatsapp.net', prefix: '.', config: { prefix: '.', botName: 'B' }, sock, reply: async (x) => out.push(x), m: { message: {} } };
+  await ps.find((p) => p.name === 'base64').handler({ ...ctx, args: ['enc', 'hello'] });
+  await ps.find((p) => p.name === 'base64').handler({ ...ctx, args: ['dec', 'aGVsbG8='] });
+  assert.deepEqual(out, ['aGVsbG8=', 'hello']);
+});
