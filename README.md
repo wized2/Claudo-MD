@@ -65,3 +65,6 @@ Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot
 | `.afk [reason]` | Marks you away. Anyone who tags or replies to you is told, and you are welcomed back on your next message |
 | `.antibad off\|warn\|kick`, `.antibad add\|del <word>`, `.antibad list` | Group admins pick the words to delete. No default list, so you decide what is blocked |
 | `.ban` / `.unban` | Owner only. Blocked numbers are ignored by the bot (number, mention or reply) |
+
+## Islamic category
+`.prayer`, `.ayah`, `.hadith [number|random]` (Sahih al-Bukhari, Arabic and English via the fawazahmed0 hadith API on jsDelivr), `.qibla [city]` (bearing from aladhan.com) and the `.mini tasbih` counter (33, 99 or 100 targets, rounds, undo). They appear under `.menu islam`.

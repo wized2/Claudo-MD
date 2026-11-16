@@ -3,11 +3,12 @@ const ui = require('../lib/ui');
 
 const CATS = {
   main: ['Main', 'Everyday basics'],
+  islam: ['Islamic', 'Prayer times, Quran, hadith, qibla, tasbih'],
   apps: ['Mini apps', 'Interactive tools and games'],
   forward: ['Forwarding', 'Channel to group and channel relays'],
   group: ['Group', 'Admin tools for groups'],
-  download: ['Download', 'YouTube and TikTok'],
-  info: ['Info', 'Weather, translate, wiki, dictionary, currency'],
+  download: ['Download', 'YouTube, TikTok and APK'],
+  info: ['Info', 'Weather, translate, wiki, GitHub, crypto, Pokedex'],
   tools: ['Tools', 'Utilities'],
   owner: ['Owner', 'Control and settings'],
 };

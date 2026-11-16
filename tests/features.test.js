@@ -233,7 +233,7 @@ test('mini apps: every app file exists, list and send-as-file work', async () =>
   const { loadPlugins } = require('../lib/pluginLoader');
   const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
   const mini = ps.find((p) => p.name === 'mini');
-  for (const f of ['calc', 'clock', 'tip', 'units', 'pass', 'bmi', 'age', 'counter', 'dice', 'sci', 'color', 'decide']) {
+  for (const f of ['calc', 'clock', 'tip', 'units', 'pass', 'bmi', 'age', 'counter', 'dice', 'sci', 'color', 'decide', 'tasbih']) {
     const h = fs.readFileSync(path.join(__dirname, '..', 'public', 'mini', f + '.html'), 'utf8');
     assert.ok(h.startsWith('<!doctype html>') && !/https?:\/\//.test(h.replace(/https?:\/\/www\.w3\.org\S*/g, '')), f);
   }
@@ -346,4 +346,17 @@ test('afk set/notify/return, badwords match, ban, tts usage', async () => {
   assert.deepEqual(settings.get('banned'), ['923001234567']);
   await ps.find((p) => p.name === 'unban').handler({ ...ctx, args: ['923001234567'] });
   assert.deepEqual(settings.get('banned'), []);
+});
+
+test('hadith and qibla helpers', async () => {
+  const api = require('../lib/apis');
+  const J = (o) => async () => ({ ok: true, status: 200, json: async () => o });
+  const h = await api.hadith(1, J({ hadiths: [{ hadithnumber: 1, text: ' Deeds depend on intentions ', reference: { book: 1, hadith: 1 } }] }));
+  assert.equal(h.english, 'Deeds depend on intentions'); assert.equal(h.book, 1);
+  const h2 = await api.hadith(5, J({ hadithnumber: 5, text: 'x' }));
+  assert.equal(h2.n, 5);
+  assert.equal(await api.hadith(0), null); assert.equal(await api.hadith(9999), null);
+  assert.equal(await api.qibla(24.86, 67, J({ data: { direction: 267.7 } })), 267.7);
+  assert.equal(await api.qibla(NaN, 1), null);
+  assert.equal(api.compass(267.7), 'W'); assert.equal(api.compass(0), 'N'); assert.equal(api.compass(359), 'N');
 });
