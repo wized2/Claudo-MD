@@ -12,12 +12,16 @@ const APPS = {
   tip: ['Tip and Split', 'Share a bill between people'],
   units: ['Unit Converter', 'Length, weight, volume, speed, data, area, temp'],
   pass: ['Password Maker', 'Strong random passwords, made on your device'],
+  bmi: ['BMI Calculator', 'Metric or imperial, with a colour scale'],
+  age: ['Age Calculator', 'Exact age and days to next birthday'],
+  counter: ['Tally Counter', 'Big tap button with best score'],
+  dice: ['Dice Roller', 'd4 to d100, up to 10 dice'],
 };
-const ALIAS = { calculator: 'calc', stopwatch: 'clock', timer: 'clock', split: 'tip', convert: 'units', converter: 'units', password: 'pass', passgen: 'pass' };
+const ALIAS = { calculator: 'calc', stopwatch: 'clock', timer: 'clock', split: 'tip', convert: 'units', converter: 'units', password: 'pass', passgen: 'pass', tally: 'counter', roll: 'dice', dice: 'dice' };
 
 module.exports = [
   {
-    name: 'mini', pattern: 'mini', aliases: ['tools2', 'miniapps'], category: 'apps', desc: 'Offline mini apps: calculator, timer, converter', usage: 'mini [calc|clock|tip|units|pass] [file]', direct: true,
+    name: 'mini', pattern: 'mini', aliases: ['tools2', 'miniapps'], category: 'apps', desc: 'Offline mini apps: calculator, timer, converter', usage: 'mini [calc|clock|tip|units|pass|bmi|age|counter|dice] [file]', direct: true,
     async handler(ctx) {
       const p = ctx.prefix;
       let k = (ctx.args[0] || '').toLowerCase(); k = ALIAS[k] || k;

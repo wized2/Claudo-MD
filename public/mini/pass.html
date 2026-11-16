@@ -19,7 +19,7 @@ button.pri{background:var(--ac);color:#06130d;border-color:transparent;font-weig
 </style></head><body><div class="w">
 <h1>Password Maker<small>made on your device</small></h1>
 <div class="card"><div class="big" id="o" style="font-size:20px;word-break:break-all;min-height:60px;user-select:text;font-family:ui-monospace,Menlo,monospace"></div><div class="lbl" style="margin:10px 0 0">Strength <b id="st" style="color:var(--ac)"></b></div></div>
-<div class="card"><div class="lbl">Length <b id="ln" style="color:var(--ac)">16</b></div><input id="l" type="range" min="6" max="48" value="16" style="width:100%;padding:0"></div>
+<div class="card"><div class="lbl">Length <b id="ln" style="color:var(--ac)">16</b></div><div class="row"><button id="lm">−</button><input id="l" type="range" min="6" max="48" value="16" style="flex:4;padding:0"><button id="lp">+</button></div></div>
 <div class="chips" id="o2"></div>
 <div class="row"><button class="pri" id="g">Generate</button><button id="cp">Copy</button></div>
 <script>
@@ -29,7 +29,7 @@ function rnd(n){var a=new Uint32Array(1),lim=4294967296-4294967296%n;do{crypto.g
 function gen(){var n=+$('l').value,sets=Object.keys(S).filter(function(k){return on[k]}),pool=sets.map(function(k){return S[k]}).join(''),p=sets.map(function(k){return S[k][rnd(S[k].length)]});
 while(p.length<n)p.push(pool[rnd(pool.length)]);for(var i=p.length-1;i>0;i--){var j=rnd(i+1),t=p[i];p[i]=p[j];p[j]=t}
 $('o').textContent=p.join('');$('ln').textContent=n;var bits=n*Math.log2(pool.length);$('st').textContent=bits<45?'weak':bits<70?'good':bits<100?'strong':'excellent'}
-$('l').oninput=gen;$('g').onclick=gen;
+$('l').oninput=gen;$('lm').onclick=function(){$('l').value=Math.max(6,+$('l').value-1);gen()};$('lp').onclick=function(){$('l').value=Math.min(48,+$('l').value+1);gen()};$('g').onclick=gen;
 $('cp').onclick=function(){var t=$('o').textContent,b=this;function ok(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1200)}
 try{navigator.clipboard.writeText(t).then(ok,function(){sel()})}catch(e){sel()}function sel(){var r=document.createRange();r.selectNodeContents($('o'));var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Selected'}};gen();
 </script>

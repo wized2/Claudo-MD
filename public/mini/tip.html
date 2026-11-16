@@ -19,13 +19,13 @@ button.pri{background:var(--ac);color:#06130d;border-color:transparent;font-weig
 </style></head><body><div class="w">
 <h1>Tip and Split<small>share the bill fairly</small></h1>
 <div class="card"><div class="lbl">Bill</div><input id="b" type="number" inputmode="decimal" placeholder="0.00" style="width:100%;font-size:28px;font-weight:700"></div>
-<div class="card"><div class="lbl">Tip <b id="tv" style="color:var(--ac)">15%</b></div><div class="chips" id="tc"></div><input id="ts" type="range" min="0" max="40" value="15" style="width:100%;margin-top:10px;padding:0"></div>
+<div class="card"><div class="lbl">Tip <b id="tv" style="color:var(--ac)">15%</b></div><div class="chips" id="tc"></div><div class="row" style="margin-top:10px"><button id="tm">−</button><input id="ts" type="range" min="0" max="40" value="15" style="flex:4;padding:0"><button id="tp">+</button></div></div>
 <div class="card"><div class="lbl">People</div><div class="row"><button id="mi">−</button><div class="big" id="pn" style="text-align:center">1</div><button id="pl">+</button></div></div>
 <div class="card"><div class="row" style="justify-content:space-between"><span class="lbl">Tip</span><b id="rt">0.00</b></div><div class="row" style="justify-content:space-between"><span class="lbl">Total</span><b id="rtot">0.00</b></div><div class="row" style="justify-content:space-between;margin-top:6px"><span class="lbl" style="color:var(--ac)">Each person</span><b class="big" id="re" style="color:var(--ac);text-align:right">0.00</b></div></div>
 <script>
 var $=function(i){return document.getElementById(i)},n=1,tip=15;
 [10,15,18,20,25].forEach(function(v){var b=document.createElement('button');b.textContent=v+'%';b.onclick=function(){tip=v;$('ts').value=v;c()};$('tc').appendChild(b)});
 function c(){var b=parseFloat($('b').value)||0,t=b*tip/100,tot=b+t;$('tv').textContent=tip+'%';$('pn').textContent=n;$('rt').textContent=t.toFixed(2);$('rtot').textContent=tot.toFixed(2);$('re').textContent=(tot/n).toFixed(2)}
-$('b').oninput=c;$('ts').oninput=function(){tip=+this.value;c()};$('mi').onclick=function(){if(n>1)n--;c()};$('pl').onclick=function(){if(n<50)n++;c()};c();
+$('b').oninput=c;$('ts').oninput=function(){tip=+this.value;c()};$('tm').onclick=function(){tip=Math.max(0,tip-1);$('ts').value=tip;c()};$('tp').onclick=function(){tip=Math.min(40,tip+1);$('ts').value=tip;c()};$('mi').onclick=function(){if(n>1)n--;c()};$('pl').onclick=function(){if(n<50)n++;c()};c();
 </script>
 </div></body></html>

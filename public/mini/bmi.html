@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>BMI Calculator</title><style>
+:root{--bg:#0e1116;--card:#171b23;--line:#262c38;--tx:#e8ecf4;--mut:#8b95a8;--ac:#7cf0c0;--ac2:#6aa8ff;--bad:#ff7a8a}
+@media(prefers-color-scheme:light){:root{--bg:#f3f5f9;--card:#fff;--line:#dde2ec;--tx:#141922;--mut:#5d687c;--ac:#0a9c6b;--ac2:#2b6be0;--bad:#d6334a}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{display:flex;flex-direction:column;align-items:center;padding:16px 14px 26px;gap:12px;user-select:none;touch-action:manipulation}
+.w{width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px}
+h1{margin:0;font-size:18px;letter-spacing:.16em;text-transform:uppercase;text-align:center}
+h1 small{display:block;font-size:10px;font-weight:500;color:var(--mut);letter-spacing:.22em;margin-top:3px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+button,select,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 14px}
+button{cursor:pointer}button:active{transform:scale(.96)}
+button.pri{background:var(--ac);color:#06130d;border-color:transparent;font-weight:700}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chips button{flex:1;padding:9px 6px;font-size:14px}
+.chips button.on{background:var(--ac2);color:#fff;border-color:transparent}
+.lbl{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.big{font-size:34px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1;min-width:0}
+</style></head><body><div class="w">
+<h1>BMI<small>body mass index</small></h1>
+<div class="chips"><button class="on" id="m1">Metric</button><button id="m2">Imperial</button></div>
+<div class="card"><div class="lbl">Weight <span id="wu">kg</span></div><div class="row"><button id="wm">−</button><input id="w" type="number" inputmode="decimal" value="70" style="text-align:center;font-size:22px"><button id="wp">+</button></div></div>
+<div class="card"><div class="lbl">Height <span id="hu">cm</span></div><div class="row"><button id="hm">−</button><input id="h" type="number" inputmode="decimal" value="170" style="text-align:center;font-size:22px"><button id="hp">+</button></div></div>
+<div class="card" style="text-align:center"><div class="lbl">Your BMI</div><div class="big" id="r" style="font-size:48px">-</div><div id="c" style="font-weight:700;margin-top:4px"></div><div style="height:10px;border-radius:6px;margin-top:12px;background:linear-gradient(90deg,#6aa8ff 0 18.5%,#7cf0c0 18.5% 25%,#ffd36a 25% 30%,#ff7a8a 30%)"><div id="pt" style="height:16px;width:4px;background:var(--tx);border-radius:2px;position:relative;top:-3px;left:0"></div></div></div>
+<script>
+var $=function(i){return document.getElementById(i)},im=0;
+function c(){var w=parseFloat($('w').value),h=parseFloat($('h').value);if(!(w>0&&h>0)){$('r').textContent='-';$('c').textContent='';return}
+var b=im?703*w/(h*h):w/Math.pow(h/100,2);$('r').textContent=b.toFixed(1);var k=b<18.5?['Underweight','#6aa8ff']:b<25?['Healthy','#7cf0c0']:b<30?['Overweight','#ffd36a']:['Obese','#ff7a8a'];$('c').textContent=k[0];$('c').style.color=k[1];
+$('pt').style.left=Math.min(97,Math.max(0,(b-10)/30*100))+'%'}
+function st(id,d){$(id).value=Math.max(1,+(parseFloat($(id).value||0)+d).toFixed(1));c()}
+$('wm').onclick=function(){st('w',-1)};$('wp').onclick=function(){st('w',1)};$('hm').onclick=function(){st('h',-1)};$('hp').onclick=function(){st('h',1)};
+function mode(i){im=i;$('m1').className=i?'':'on';$('m2').className=i?'on':'';$('wu').textContent=i?'lb':'kg';$('hu').textContent=i?'in':'cm';$('w').value=i?154:70;$('h').value=i?67:170;c()}
+$('m1').onclick=function(){mode(0)};$('m2').onclick=function(){mode(1)};$('w').oninput=c;$('h').oninput=c;c();
+</script>
+</div></body></html>
