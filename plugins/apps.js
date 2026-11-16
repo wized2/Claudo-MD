@@ -6,10 +6,19 @@ const pickOne = (a) => a[rnd(a.length)];
 const FACE = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
 function calc(expr) {
-  const e = String(expr).replace(/×/g, '*').replace(/÷/g, '/').replace(/\^/g, '**').replace(/,/g, '');
+  const raw = String(expr || '').trim();
+  if (!raw) throw new Error('usage: calc 12*(3+4)');
+  const e = raw.replace(/×/g, '*').replace(/÷/g, '/').replace(/\^/g, '**').replace(/,/g, '');
   if (!/^[\d\s+\-*/%().]+$/.test(e)) throw new Error('numbers and + - * / % ^ ( ) only');
-  const v = Function('"use strict";return (' + e + ')')();
-  if (!Number.isFinite(v)) throw new Error('not a number');
+  // Reject empty / operator-only after strip
+  if (!/\d/.test(e)) throw new Error('need at least one number');
+  let v;
+  try {
+    v = Function('"use strict";return (' + e + ')')();
+  } catch (_) {
+    throw new Error('invalid expression');
+  }
+  if (typeof v !== 'number' || !Number.isFinite(v)) throw new Error('not a number');
   return Math.round(v * 1e10) / 1e10;
 }
 
