@@ -438,3 +438,26 @@ test('ttp sticker, tagadmins, prefix, broadcast, goodbye', async () => {
   const n = sent.length; await protect.onParticipants(sock, { id: 'g@g.us', action: 'remove', participants: ['9222@s.whatsapp.net'] }, config);
   assert.equal(sent.length, n);
 });
+
+test('antispam flood counter and action, find command', async () => {
+  const fs = require('fs'), os = require('os');
+  process.env.FORWARDS_JSON = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'sp-')), 'channel-forwards.json');
+  const protect = require('../lib/protect');
+  const t0 = 1e12; let hit = 0;
+  for (let i = 0; i < 8; i++) if (protect.flooded('k', t0 + i * 100)) hit++;
+  assert.equal(hit, 2); assert.equal(protect.flooded('k', t0 + 60000), false);
+  protect.setCfg('g@g.us', { antispam: 'kick' });
+  const sent = []; const removed = [];
+  const sock = { user: { id: '9230:1@s.whatsapp.net' }, sendMessage: async (j, c) => sent.push(c), groupParticipantsUpdate: async (j, w, a) => removed.push([w, a]), groupMetadata: async () => ({ participants: [{ id: '9230@s.whatsapp.net', admin: 'admin' }, { id: '9222@s.whatsapp.net' }] }) };
+  const msg = () => ({ key: { remoteJid: 'g@g.us', participant: '9222@s.whatsapp.net', id: 'x' }, message: { conversation: 'a' } });
+  const results = [];
+  for (let i = 0; i < 12; i++) results.push(await protect.checkSpam(sock, msg(), { config: { ownerNumber: '1' } }));
+  assert.ok(results.includes('warned') && results.includes('kicked')); assert.equal(removed.length, 1);
+  protect.setCfg('g@g.us', { antispam: 'off' });
+  assert.equal(await protect.checkSpam(sock, msg(), { config: {} }), 'ignored');
+  const { loadPlugins } = require('../lib/pluginLoader');
+  const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+  const out = []; require('../lib/settings').set('native', false);
+  await ps.find((p) => p.name === 'find').handler({ ps, plugins: ps, isOwner: false, prefix: '.', config: { prefix: '.', botName: 'B' }, args: ['quran'], reply: async (x) => out.push(x), sock: {}, jid: 'a', m: {} });
+  assert.ok(out[0].includes(require('../lib/ui').mono('.ayah')));
+});

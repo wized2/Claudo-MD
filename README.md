@@ -86,3 +86,6 @@ Every reply uses the same look from `lib/ui.js`: a left-rail card (`╭─❖ TI
 
 ## More owner and group tools
 `.prefix [new]` (change the prefix at runtime, saved), `.restart`, `.broadcast <text>` (one group every 4 s, max 50), `.ttp <text>` (text to sticker), `.tagadmins`, `.goodbye on|off` (per group, like `.welcome`).
+
+## Anti spam and search
+`.antispam off|warn|kick` (group admins): more than 6 messages in 8 seconds are deleted, with a warning; in kick mode the third strike removes the sender. Admins and the owner are exempt and the bot must be an admin. `.find <word>` searches commands by name, alias or description.

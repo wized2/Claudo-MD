@@ -32,4 +32,13 @@ module.exports = [
       await native.buttons(ctx, { title: 'Goodbye', body: ui.card('Goodbye', [ui.row('status', P.getCfg(ctx.jid).goodbye ? 'on' : 'off')], { foot: false }), footer: ctx.config.botName, buttons: [{ id: ctx.prefix + 'goodbye on', text: 'Turn on' }, { id: ctx.prefix + 'goodbye off', text: 'Turn off' }] });
     },
   },
+  {
+    name: 'antispam', pattern: 'antispam', category: 'group', group: true, desc: 'Stop message flooding: off, warn, kick', usage: 'antispam off|warn|kick',
+    async handler(ctx) {
+      const g2 = await guard(ctx, { needBot: false }); if (!g2) return;
+      const v = (ctx.args[0] || '').toLowerCase();
+      if (['off', 'warn', 'kick'].includes(v)) { P.setCfg(ctx.jid, { antispam: v }); return ctx.reply(ui.card('Anti spam', [ui.row('mode', v), v !== 'off' && !g2.botAdmin ? ui.note('make the bot an admin so it can act') : '', ui.note('limit: 6 messages in 8 seconds, admins are exempt')].filter(Boolean), { foot: false })); }
+      await native.buttons(ctx, { title: 'Anti spam', body: ui.card('Anti spam', [ui.row('mode', P.getCfg(ctx.jid).antispam), ui.note('6 messages in 8 seconds. warn deletes the extra ones, kick removes after 3 strikes')], { foot: false }), footer: ctx.config.botName, buttons: [{ id: ctx.prefix + 'antispam warn', text: 'Warn' }, { id: ctx.prefix + 'antispam kick', text: 'Kick' }, { id: ctx.prefix + 'antispam off', text: 'Off' }] });
+    },
+  },
 ];

@@ -160,6 +160,10 @@ async function startBot() {
         }
         if (type !== 'notify' && type !== 'append') continue;
         if (type === 'notify' && !m.key.fromMe && features.on('autoread')) sock.readMessages([m.key]).catch(() => {});
+        if (jid.endsWith('@g.us') && !m.key.fromMe && !botState.isIdle()) {
+          const rs = await protect.checkSpam(sock, m, { config }).catch(() => 'ignored');
+          if (rs !== 'ignored') continue;
+        }
         const text = extractText(m.message).trim();
         if (!text) continue;
         if (!m.key.fromMe && !botState.isIdle()) {

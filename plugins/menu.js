@@ -72,4 +72,15 @@ module.exports = [
       await ctx.reply(ui.card(ctx.prefix + x.pattern, [x.desc || '', '', ui.row('usage', ctx.prefix + (x.usage || x.pattern)), x.aliases && x.aliases.length ? ui.row('aliases', x.aliases.map((a) => ctx.prefix + a).join('  ')) : '', x.owner ? ui.row('access', 'owner only') : '', x.group ? ui.row('where', 'groups only') : ''].filter((l) => l !== ''), { foot: ctx.prefix + 'menu' }));
     },
   },
+  {
+    name: 'find', pattern: 'find', aliases: ['search', 'cmd'], category: 'main', desc: 'Find a command by word', usage: 'find <word>',
+    async handler(ctx) {
+      const q = ctx.args.join(' ').toLowerCase().trim();
+      if (!q) return ctx.reply(ui.card('Find', [ui.cmd(ctx.prefix, 'find download')], { foot: false }));
+      const hits = ctx.plugins.filter((x) => x.pattern && (!x.owner || ctx.isOwner) && [x.pattern, ...(x.aliases || []), x.desc || '', x.category || ''].join(' ').toLowerCase().includes(q)).slice(0, 12);
+      if (!hits.length) return ctx.reply(ui.note('nothing matches "' + q + '"'));
+      const rows = hits.slice(0, 10).map((x) => ({ id: x.direct ? ctx.prefix + x.pattern : ctx.prefix + 'usage ' + x.pattern, title: ctx.prefix + x.pattern, description: x.desc || '' }));
+      await native.list(ctx, { title: 'Find', body: ui.card('Find', hits.map((x) => ui.cmd(ctx.prefix, x.pattern, x.desc)), { sub: hits.length + ' for "' + q + '"', foot: false }), footer: ctx.config.botName, button: 'Open', sections: [{ title: 'Matches', rows }] });
+    },
+  },
 ];
