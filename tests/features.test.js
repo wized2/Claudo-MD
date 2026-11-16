@@ -297,3 +297,24 @@ test('apk: search parsing, package lookup, plugin sends document or link', async
     await ps.find((p) => p.name === 'apkget').handler({ ...ctx, args: ['../bad'] });
   } finally { global.fetch = orig; }
 });
+
+test('api helpers parse prayer, ayah, github, pokemon, crypto and handle 404', async () => {
+  const api = require('../lib/apis');
+  const J = (o, status = 200) => async () => ({ ok: status < 400, status, json: async () => o });
+  const p = await api.prayer('Lahore, Pakistan', J({ data: { timings: { Fajr: '05:30', Sunrise: '06:49', Dhuhr: '12:17', Asr: '15:23', Maghrib: '17:44', Isha: '19:03' }, date: { readable: '16 Nov 2026', hijri: { date: '06-06-1448' } }, meta: { timezone: 'Asia/Karachi' } } }));
+  assert.equal(p.times.Isha, '19:03'); assert.equal(p.city, 'Lahore');
+  const a = await api.ayah('2:255', J({ data: [{ text: 'ar', numberInSurah: 255, surah: { englishName: 'Al-Baqara', name: 'x', number: 2 } }, { text: 'en', numberInSurah: 255, surah: {} }] }));
+  assert.equal(a.english, 'en'); assert.equal(await api.ayah('../x'), null);
+  const g = await api.github('wized2', J({ login: 'wized2', public_repos: 3, created_at: '2025-11-23T00:00:00Z', html_url: 'u' }));
+  assert.equal(g.kind, 'user'); assert.equal(g.since, '2025-11-23');
+  assert.equal((await api.github('a/b', J({ full_name: 'a/b', stargazers_count: 5, pushed_at: '2026-01-01T00:00:00Z' }))).kind, 'repo');
+  assert.equal(await api.github('nobody', J({}, 404)), null);
+  const pk = await api.pokemon('Pikachu', J({ id: 25, name: 'pikachu', height: 4, weight: 60, types: [{ type: { name: 'electric' } }], abilities: [{ ability: { name: 'static' } }], stats: [{ stat: { name: 'hp' }, base_stat: 35 }], sprites: { front_default: 'img' } }));
+  assert.equal(pk.height, 0.4); assert.equal(pk.stats.hp, 35); assert.equal(pk.image, 'img');
+  const c = await api.crypto('btc', J({ lastPrice: '67000.5', priceChangePercent: '-1.2', highPrice: '68000', lowPrice: '66000', quoteVolume: '1e9' }));
+  assert.equal(c.pair, 'BTCUSDT'); assert.equal(api.num(67000.5), '67,000.5');
+  assert.equal(await api.crypto('zzz', J({}, 400)), null);
+  const { loadPlugins } = require('../lib/pluginLoader');
+  const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+  for (const n of ['prayer', 'ayah', 'github', 'pokemon', 'crypto']) assert.ok(ps.find((x) => x.name === n), n);
+});

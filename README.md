@@ -48,3 +48,12 @@ Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot
 
 ## APK downloads
 `.apk <name>` searches Aptoide (keyless public API) and shows a tap list. Picking one runs `.apkget <package>`, which sends the APK as a document (with version, size, developer, scan status). Files over `APK_MAX_MB` (default 100) get a direct link button instead. Apps with OBB data are flagged. Set `APTOIDE_API` to use another endpoint.
+
+## More keyless info commands
+| Command | What it does | Source |
+|---|---|---|
+| `.prayer [city[, country]]` | Prayer times and Hijri date (default Karachi, `PRAYER_COUNTRY`, `PRAYER_METHOD`) | aladhan.com |
+| `.ayah 2:255` / `.ayah random` | Quran verse, Arabic plus English | alquran.cloud |
+| `.github <user \| owner/repo>` | Profile or repo stats | api.github.com |
+| `.pokemon <name\|id>` | Pokedex card with art | pokeapi.co |
+| `.crypto <symbol>` | Spot price and 24h change | Binance public API |
