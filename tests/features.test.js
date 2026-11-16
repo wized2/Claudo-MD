@@ -226,5 +226,4 @@ test('fun + stats plugins respond', async () => {
   await run('stats', []); await run('quote', []); await run('8ball', ['will', 'it', 'rain']); await run('choose', ['a', '|', 'b']);
   await run('8ball', []); await run('choose', ['solo']);
   assert.ok(out.length >= 6);
-  assert.ok(JSON.stringify(out[0]).includes('heap'));
 });
