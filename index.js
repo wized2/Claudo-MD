@@ -12,6 +12,9 @@ const engine = require('./lib/cfwdEngine');
 const forward = require('./lib/forward');
 const botState = require('./lib/botState');
 const protect = require('./lib/protect');
+const backup = require('./lib/backup');
+const settingsStore = require('./lib/settings');
+const jsonStore = require('./lib/jsonStore');
 const { isOwner } = require('./lib/owner');
 const ui = require('./lib/ui');
 const baileys = require('baileys');
@@ -122,6 +125,7 @@ async function startBot() {
       Object.assign(state, { connected: true, registered: true, user: sock.user || null, pairingCode: null, lastQrDataUrl: null, message: 'Connected', lastError: null, updatedAt: Date.now() });
       console.log('[bot] connected as', sock.user && sock.user.id);
       try { channelPoll.startChannelPoll(sock, config); } catch (e) { console.warn('[cfwd-poll]', e.message); }
+      try { backup.startAuto(sock, config, { settings: settingsStore, dirs: () => ({ dataDir: jsonStore.dataDir(), sessionDir }), ownerJid: (c) => String(c.ownerNumber || '').replace(/\D/g, '') + '@s.whatsapp.net' }); } catch (e) { console.warn('[autobackup]', e.message); }
     }
     if (connection === 'close') {
       try { channelPoll.stopChannelPoll(); } catch (_) {}

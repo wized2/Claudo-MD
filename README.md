@@ -1,12 +1,13 @@
 # Claudo-MD
 
-WhatsApp multi-device bot (Baileys) with native interactive menus, HTML mini apps and a reliable channel forwarder.
+WhatsApp multi-device bot (Baileys) with native interactive menus, mini apps and a reliable channel forwarder.
 
-- Native buttons and lists everywhere. Every tap is a normal command, and `.ui text` switches to plain text if a client cannot render them
+- Native buttons and lists everywhere; every tap is a normal command, and `.ui text` switches to plain text if a client cannot render them
 - Styled Unicode interface, no emoji
 - Channel forwarding that does not miss posts: durable retry queue, lookback after downtime, media always re-sent, native "forwarded from channel" tag in `ocfwd` mode
-- Playable HTML mini apps, group admin tools, downloaders and info lookups through keyless APIs
-- `.stop` / `.start` idle switch, hot-reloading plugins
+- Promo and invite detection (`.cfwd test <text>`)
+- `.stop` / `.start` idle switch
+- Hot-reloading plugins in `plugins/`
 
 ## Run
 ```
@@ -15,32 +16,26 @@ OWNER=923001234567 npm start
 ```
 Open `http://localhost:3000`, enter your number and link with the pairing code.
 
-Optional environment: `PUBLIC_URL` (adds a Play online button to games), `YT_API` and `YT_PROXY` (YouTube API base and fallback proxy), `PORT`, `SESSION_DIR`.
-
-## Commands
-| Category | Commands |
-|---|---|
-| Main | `.menu` `.usage <cmd>` `.alive` `.ping` `.id` |
-| Mini apps | `.apps` `.games` `.play ttt\|snake\|2048\|memory\|quiz` `.ttt [bot]` `.guess` `.trivia` `.dice` `.coin` `.rps` `.calc` |
-| Group (admin) | `.kick` `.add` `.promote` `.demote` `.tagall` `.hidetag` `.mute` `.unmute` `.link` `.revoke` `.ginfo` `.del` `.warn` `.warns [reset]` `.antilink off\|warn\|kick` `.welcome on\|off` |
-| Download | `.yt <link or search>` `.song` `.video` `.ytget` `.tt <tiktok link>` |
-| Info | `.weather` `.tr <lang> <text>` `.wiki` `.define` `.cur 100 usd pkr` |
-| Tools | `.pfp <number>` (also reply or mention) `.qr` `.short` `.sticker` `.toimg` |
-| Forwarding (owner) | `.cfwd help` `.cfwd add <channel link> <group jid\|here> [ocfwd]` `.cfwd list` `.cfwd mode` `.cfwd footer` `.cfwd strip` `.cfwd links on\|off` `.cfwd promo on\|off` `.cfwd test <text>` |
-| Owner | `.stop` `.start [fresh]` `.status` `.ui native\|text` `.vv` |
-
-## Mini apps
-`.play <game>` sends a self-contained HTML file. Open it in the phone browser; it works offline and has on-screen buttons (no swiping needed). With `PUBLIC_URL` set the bot also serves them at `/games/<name>.html`.
+## Commands (batch 1)
+`.menu` `.alive` `.ping` `.id` `.apps` `.dice` `.coin` `.rps` `.calc` `.cfwd help` `.stop` `.start` `.status` `.ui`
 
 ## Plugin format
 ```js
-module.exports = { name: 'hello', pattern: 'hello', aliases: [], category: 'main', desc: 'Say hi', direct: true, owner: false, group: false,
+module.exports = { name: 'hello', pattern: 'hello', aliases: [], category: 'main', desc: 'Say hi', direct: true, owner: false,
   async handler(ctx) { await ctx.reply('hi'); } };
 ```
-`ctx` has `sock, m, jid, sender, args, arg, reply, isOwner, group, prefix, ui`. Use `lib/native.js` (`buttons`, `list`) for interactive replies, with a full command string as each button id. A file may export one plugin or an array.
+`ctx` has `sock, m, jid, sender, args, arg, reply, isOwner, group, prefix, ui`. Use `lib/native.js` (`buttons`, `list`) for interactive replies; use a full command string as each button id.
 
-## Tests
-`npm test` (Node 18+). External APIs are mocked, so the suite runs offline.
 
-## Notes
-Native interactive messages are not an official API and WhatsApp may change how they render. Respect the terms of the services you download from.
+## Backup and restore (owner)
+
+| Command | What it does |
+|---|---|
+| `.backup` | Sends a JSON file with rules, settings, warnings, protection (no login) |
+| `.backup full` | Same plus the WhatsApp login so you can skip pairing. Keep it private |
+| `.restore [full]` | Reply to a backup file. The bot restarts to apply it |
+| `.autobackup <hours\|off>` | Sends a settings backup to your DM on a schedule |
+
+## KataBump / panel hosting
+
+Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot/`, keeps `data/` and `session/` outside it, auto-updates every 5 min, and restarts the bot on exit. Env: `PHONE`, `PORT`, `BRANCH`, `REPO_URL`, `UPDATE_EVERY_MIN`. To restore on a fresh host, upload a `claudo-backup-*.json` to the host root before first start (used only when `data/` is empty; `session/` is restored only if empty).

@@ -68,17 +68,29 @@ test('protect: link detection, antilink flow, welcome', async () => {
   assert.ok(calls.some((c) => c[0] === 'send' && c[1].mentions));
 });
 
-test('minigames: games list and play sends html document', async () => {
+test('minigames: play opens in-chat HTML app, falls back to file', async () => {
   const { loadPlugins } = require('../lib/pluginLoader');
   const plugins = loadPlugins(path.join(__dirname, '..', 'plugins'));
-  const out = [];
-  const mk = (args, cfg = {}) => ({ jid: 'u@s.whatsapp.net', sender: 'u@s.whatsapp.net', args, prefix: '.', config: { prefix: '.', botName: 'B', ...cfg }, m: {}, sock: { relayMessage: async () => out.push('native') }, reply: async (c) => out.push(c) });
-  await plugins.find((p) => p.name === 'games').handler(mk([]));
+  const out = []; const relayed = [];
+  const mk = (args, sock) => ({ jid: 'u@s.whatsapp.net', sender: 'u@s.whatsapp.net', args, prefix: '.', config: { prefix: '.', botName: 'B' }, m: {}, sock, reply: async (c) => out.push(c) });
+  const good = { user: { id: '111:2@s.whatsapp.net' }, relayMessage: async (j, m) => relayed.push(m) };
+  await plugins.find((p) => p.name === 'games').handler(mk([], good));
   const play = plugins.find((p) => p.name === 'play');
-  await play.handler(mk(['snake']));
+  await play.handler(mk(['snake'], good));
+  const rich = relayed.find((m) => m.botForwardedMessage && m.botForwardedMessage.message.richResponseMessage);
+  assert.ok(rich, 'in-chat rich message relayed');
+  const data = rich.botForwardedMessage.message.richResponseMessage.unifiedResponse.data;
+  const payload = JSON.parse(Buffer.from(data, 'base64').toString());
+  assert.ok(payload.sections[0].view_model.primitive.payload.includes('<canvas'));
+  assert.ok(!out.some((o) => o && o.document));
+  out.length = 0;
+  await play.handler(mk(['snake', 'file'], good));
   const doc = out.find((o) => o && o.document);
-  assert.ok(doc && doc.fileName === 'Snake.html' && doc.mimetype === 'text/html' && doc.document.length > 1000);
-  out.length = 0; await play.handler(mk(['nope']));
+  assert.ok(doc && doc.fileName === 'Snake.html' && doc.mimetype === 'text/html');
+  out.length = 0;
+  await play.handler(mk(['quiz'], { user: { id: '1:1@s.whatsapp.net' }, relayMessage: async () => { throw new Error('nope'); } }));
+  assert.ok(out.some((o) => o && o.document), 'falls back to file when in-chat fails');
+  out.length = 0; await play.handler(mk(['nope'], good));
   assert.equal(typeof out[0], 'string');
 });
 
@@ -148,4 +160,59 @@ test('web: weather, translate, wiki, define, convert parsing', async () => {
   const orig = global.fetch; global.fetch = route({ 'translate.googleapis': [[['ہیلو', 'hello']], null, 'en'] });
   try { await ps.find((p) => p.name === 'tr').handler(ctx); } finally { global.fetch = orig; }
   assert.ok(String(sent[0]).includes('ہیلو'));
+});
+
+test('backup: build, validate, restore round trip, traversal rejected', () => {
+  const fs = require('fs'), os = require('os');
+  const B = require('../lib/backup');
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'bk-'));
+  const data = path.join(d, 'data'), ses = path.join(d, 'session');
+  fs.mkdirSync(data); fs.mkdirSync(ses);
+  fs.writeFileSync(path.join(data, 'channel-forwards.json'), '[{"from":"a"}]');
+  fs.writeFileSync(path.join(data, 'warns.json'), '{"g|1":2}');
+  fs.writeFileSync(path.join(data, 'cfwd-pending.json'), '[1]');
+  fs.writeFileSync(path.join(ses, 'creds.json'), '{"x":1}');
+  const small = B.build({ dataDir: data, sessionDir: ses });
+  assert.deepEqual(Object.keys(small.files).sort(), ['channel-forwards.json', 'warns.json']);
+  assert.equal(small.session, undefined);
+  const full = B.build({ dataDir: data, sessionDir: ses, full: true });
+  assert.ok(full.session['creds.json']);
+  const data2 = path.join(d, 'd2'), ses2 = path.join(d, 's2');
+  const r = B.restore(B.parse(Buffer.from(JSON.stringify(full))), { dataDir: data2, sessionDir: ses2 });
+  assert.equal(r.data, 2); assert.equal(r.session, 0);
+  assert.equal(fs.readFileSync(path.join(data2, 'warns.json'), 'utf8'), '{"g|1":2}');
+  const r2 = B.restore(full, { dataDir: data2, sessionDir: ses2, withSession: true });
+  assert.equal(r2.session, 1); assert.equal(fs.readFileSync(path.join(ses2, 'creds.json'), 'utf8'), '{"x":1}');
+  assert.throws(() => B.validate({ app: 'claudo-md', files: { '../evil.json': '{}' } }), /bad file name/);
+  assert.throws(() => B.validate({ app: 'other', files: {} }), /not a Claudo-MD/);
+  assert.throws(() => B.validate({ app: 'claudo-md', files: { 'a.json': 'not json' } }));
+  assert.ok(/^claudo-backup-\d{8}-\d{4}\.json$/.test(B.fileName(false)));
+});
+
+test('backup plugin: backup sends a file, restore reads a replied file', async () => {
+  const fs = require('fs'), os = require('os');
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'bk2-'));
+  process.env.FORWARDS_JSON = path.join(d, 'data', 'channel-forwards.json');
+  fs.mkdirSync(path.join(d, 'data')); fs.writeFileSync(process.env.FORWARDS_JSON, '[{"from":"z"}]');
+  const { loadPlugins } = require('../lib/pluginLoader');
+  const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+  const sent = [], out = [];
+  const sock = { sendMessage: async (to, c) => { sent.push([to, c]); } };
+  const base = { jid: 'o@s.whatsapp.net', sender: 'o@s.whatsapp.net', prefix: '.', config: { prefix: '.', botName: 'B', ownerNumber: '92300' }, sock, reply: async (x) => out.push(x), group: false, args: [], m: { message: {} } };
+  await ps.find((p) => p.name === 'backup').handler({ ...base });
+  const doc = sent[0][1];
+  assert.ok(doc.document && /claudo-backup/.test(doc.fileName));
+  await ps.find((p) => p.name === 'backup').handler({ ...base, group: true, jid: 'g@g.us' });
+  assert.equal(sent[sent.length - 1][0], '92300@s.whatsapp.net');
+  const media = require('../lib/media');
+  const orig = media.download; media.download = async () => doc.document;
+  const realExit = process.exit; let exited = 0; process.exit = () => { exited++; };
+  try {
+    fs.writeFileSync(process.env.FORWARDS_JSON, '[]');
+    const m = { key: { remoteJid: 'o@s.whatsapp.net', id: 'X' }, message: { extendedTextMessage: { text: '.restore', contextInfo: { stanzaId: 'Q', quotedMessage: { documentMessage: { fileName: 'b.json' } } } } } };
+    await ps.find((p) => p.name === 'restore').handler({ ...base, m });
+    assert.equal(fs.readFileSync(process.env.FORWARDS_JSON, 'utf8'), '[{"from":"z"}]');
+    await new Promise((r) => setTimeout(r, 1700));
+    assert.equal(exited, 1);
+  } finally { media.download = orig; process.exit = realExit; }
 });
