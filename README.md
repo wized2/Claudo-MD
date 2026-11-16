@@ -39,3 +39,6 @@ module.exports = { name: 'hello', pattern: 'hello', aliases: [], category: 'main
 ## KataBump / panel hosting
 
 Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot/`, keeps `data/` and `session/` outside it, auto-updates every 5 min, and restarts the bot on exit. Env: `PHONE`, `PORT`, `BRANCH`, `REPO_URL`, `UPDATE_EVERY_MIN`. To restore on a fresh host, upload a `claudo-backup-*.json` to the host root before first start (used only when `data/` is empty; `session/` is restored only if empty).
+
+## Offline mini apps
+`.mini` opens a list. `.mini calc|clock|tip|units|pass` sends a self-contained HTML app (calculator, stopwatch and timer, tip split, unit converter, password maker). They need no data from the bot or internet; if the in-chat render is unsupported the app is sent as an `.html` file.

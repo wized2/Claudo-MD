@@ -227,3 +227,19 @@ test('fun + stats plugins respond', async () => {
   await run('8ball', []); await run('choose', ['solo']);
   assert.ok(out.length >= 6);
 });
+
+test('mini apps: every app file exists, list and send-as-file work', async () => {
+  const fs = require('fs');
+  const { loadPlugins } = require('../lib/pluginLoader');
+  const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+  const mini = ps.find((p) => p.name === 'mini');
+  for (const f of ['calc', 'clock', 'tip', 'units', 'pass']) {
+    const h = fs.readFileSync(path.join(__dirname, '..', 'public', 'mini', f + '.html'), 'utf8');
+    assert.ok(h.startsWith('<!doctype html>') && !/https?:\/\//.test(h.replace(/https?:\/\/www\.w3\.org\S*/g, '')), f);
+  }
+  const out = [];
+  const base = { jid: 'a@s.whatsapp.net', sender: 'a@s.whatsapp.net', prefix: '.', config: { prefix: '.', botName: 'B' }, sock: { sendMessage: async (_, c) => out.push(c) }, reply: async (x) => out.push(x), m: { message: {} } };
+  await mini.handler({ ...base, args: [] });
+  await mini.handler({ ...base, args: ['timer', 'file'] });
+  assert.ok(out.some((o) => o && o.document && o.fileName === 'Stopwatch and Timer.html'));
+});

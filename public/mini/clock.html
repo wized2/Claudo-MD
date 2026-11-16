@@ -1,0 +1,43 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Stopwatch and Timer</title><style>
+:root{--bg:#0e1116;--card:#171b23;--line:#262c38;--tx:#e8ecf4;--mut:#8b95a8;--ac:#7cf0c0;--ac2:#6aa8ff;--bad:#ff7a8a}
+@media(prefers-color-scheme:light){:root{--bg:#f3f5f9;--card:#fff;--line:#dde2ec;--tx:#141922;--mut:#5d687c;--ac:#0a9c6b;--ac2:#2b6be0;--bad:#d6334a}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{display:flex;flex-direction:column;align-items:center;padding:16px 14px 26px;gap:12px;user-select:none;touch-action:manipulation}
+.w{width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px}
+h1{margin:0;font-size:18px;letter-spacing:.16em;text-transform:uppercase;text-align:center}
+h1 small{display:block;font-size:10px;font-weight:500;color:var(--mut);letter-spacing:.22em;margin-top:3px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+button,select,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 14px}
+button{cursor:pointer}button:active{transform:scale(.96)}
+button.pri{background:var(--ac);color:#06130d;border-color:transparent;font-weight:700}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chips button{flex:1;padding:9px 6px;font-size:14px}
+.chips button.on{background:var(--ac2);color:#fff;border-color:transparent}
+.lbl{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.big{font-size:34px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1;min-width:0}
+</style></head><body><div class="w">
+<h1>Clock<small>stopwatch and timer</small></h1>
+<div class="chips"><button class="on" id="t1">Stopwatch</button><button id="t2">Timer</button></div>
+<div class="card" style="text-align:center"><div class="big" id="disp" style="font-size:52px">00:00.0</div></div>
+<div id="sw"><div class="row"><button class="pri" id="go">Start</button><button id="lap">Lap</button><button id="rs">Reset</button></div><div class="card" id="laps" style="margin-top:12px;max-height:200px;overflow:auto;display:none"></div></div>
+<div id="tm" style="display:none"><div class="chips" id="pre"></div><div class="row" style="margin-top:12px"><button class="pri" id="tgo">Start</button><button id="trs">Reset</button></div></div>
+<script>
+var $=function(i){return document.getElementById(i)},mode='sw';
+function f(ms,t){var s=ms/1000,m=Math.floor(s/60);s=s-m*60;var h=Math.floor(m/60);m=m%60;var p=function(n){return String(n).padStart(2,'0')};return(h?h+':':'')+p(m)+':'+p(Math.floor(s))+(t?'.'+Math.floor(s%1*10):'')}
+var run=0,base=0,t0=0,laps=[];
+function el(){return base+(run?Date.now()-t0:0)}
+$('go').onclick=function(){if(run){base+=Date.now()-t0;run=0;this.textContent='Start'}else{t0=Date.now();run=1;this.textContent='Stop'}};
+$('lap').onclick=function(){if(!run)return;laps.unshift(el());$('laps').style.display='block';$('laps').innerHTML=laps.map(function(x,i){return'<div class="row" style="justify-content:space-between"><span style="color:var(--mut)">Lap '+(laps.length-i)+'</span><b>'+f(x,1)+'</b></div>'}).join('')};
+$('rs').onclick=function(){run=0;base=0;laps=[];$('go').textContent='Start';$('laps').style.display='none'};
+var tl=0,tr=0,te=0,tset=0;
+[1,3,5,10,15,30].forEach(function(m){var b=document.createElement('button');b.textContent=m+' min';b.onclick=function(){tset=tl=m*60000;tr=0;$('tgo').textContent='Start'};$('pre').appendChild(b)});
+function beep(){try{var a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=880;o.start();setTimeout(function(){o.stop()},700)}catch(e){}try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(e){}}
+$('tgo').onclick=function(){if(!tl)return;if(tr){tl=Math.max(0,te-Date.now());tr=0;this.textContent='Start'}else{te=Date.now()+tl;tr=1;this.textContent='Pause'}};
+$('trs').onclick=function(){tr=0;tl=tset;$('tgo').textContent='Start'};
+function sw(m){mode=m;$('sw').style.display=m=='sw'?'':'none';$('tm').style.display=m=='sw'?'none':'';$('t1').className=m=='sw'?'on':'';$('t2').className=m=='sw'?'':'on'}
+$('t1').onclick=function(){sw('sw')};$('t2').onclick=function(){sw('tm')};
+setInterval(function(){if(tr){var r=te-Date.now();if(r<=0){tr=0;tl=0;r=0;$('tgo').textContent='Start';beep()}}
+ $('disp').textContent=mode=='sw'?f(el(),1):f(tr?Math.max(0,te-Date.now()):tl,0)},100);
+</script>
+</div></body></html>
