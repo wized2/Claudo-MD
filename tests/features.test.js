@@ -216,3 +216,15 @@ test('backup plugin: backup sends a file, restore reads a replied file', async (
     assert.equal(exited, 1);
   } finally { media.download = orig; process.exit = realExit; }
 });
+
+test('fun + stats plugins respond', async () => {
+  const { loadPlugins } = require('../lib/pluginLoader');
+  const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+  const out = [];
+  const base = { jid: 'a@s.whatsapp.net', sender: 'a@s.whatsapp.net', prefix: '.', startedAt: Date.now(), plugins: ps, config: { prefix: '.', botName: 'B', tagline: 't' }, sock: { sendMessage: async (_, c) => out.push(c) }, reply: async (x) => out.push(x), m: { message: {} } };
+  const run = (n, args) => ps.find((p) => p.name === n).handler({ ...base, args, arg: args.join(' ') });
+  await run('stats', []); await run('quote', []); await run('8ball', ['will', 'it', 'rain']); await run('choose', ['a', '|', 'b']);
+  await run('8ball', []); await run('choose', ['solo']);
+  assert.ok(out.length >= 6);
+  assert.ok(JSON.stringify(out[0]).includes('heap'));
+});
