@@ -60,6 +60,23 @@ module.exports = [
     },
   },
   {
+    name: 'hijri', pattern: 'hijri', aliases: ['islamicdate', 'hijridate'], category: 'islam', desc: 'Today in the Hijri calendar, or convert dd-mm-yyyy', usage: 'hijri [dd-mm-yyyy]', direct: true,
+    async handler(ctx) {
+      const d = ctx.args[0] || api.todayKarachi();
+      let r; try { r = await api.hijri(d); } catch (e) { return fail(ctx, e); }
+      if (!r) return usage(ctx, 'Hijri date', 'hijri 16-11-2026');
+      await ctx.reply(ui.card('Hijri date', [ui.row('gregorian', d), ui.row('hijri', r.day + ' ' + r.month + ' ' + r.year + ' AH'), ui.row('arabic', r.monthAr), r.weekday ? ui.row('day', r.weekday) : ''].filter(Boolean), { foot: false }));
+    },
+  },
+  {
+    name: 'zakat', pattern: 'zakat', category: 'islam', desc: 'Zakat on savings (2.5%)', usage: 'zakat <amount>', direct: false,
+    async handler(ctx) {
+      const v = parseFloat(String(ctx.args.join('')).replace(/,/g, ''));
+      if (!(v > 0)) return usage(ctx, 'Zakat', 'zakat 1500000');
+      await ctx.reply(ui.card('Zakat', [ui.row('savings', v.toLocaleString('en-US')), ui.row('zakat 2.5%', (v * 0.025).toLocaleString('en-US', { maximumFractionDigits: 2 })), '', ui.note('Due only if your wealth is above the nisab and held for a lunar year. Ask a scholar for your case.')], { foot: false }));
+    },
+  },
+  {
     name: 'github', pattern: 'github', aliases: ['gh', 'repo'], category: 'info', desc: 'GitHub user or repo info', usage: 'github <user | owner/repo>', direct: true,
     async handler(ctx) {
       const q = ctx.args.join(' ').trim();

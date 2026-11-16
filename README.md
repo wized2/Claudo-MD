@@ -67,7 +67,7 @@ Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot
 | `.ban` / `.unban` | Owner only. Blocked numbers are ignored by the bot (number, mention or reply) |
 
 ## Islamic category
-`.prayer`, `.ayah`, `.hadith [number|random]` (Sahih al-Bukhari, Arabic with Urdu translation via the fawazahmed0 hadith API on jsDelivr), `.qibla [city]` (bearing from aladhan.com) and the `.mini tasbih` counter (33, 99 or 100 targets, rounds, undo). They appear under `.menu islam`.
+`.prayer`, `.ayah`, `.hadith [number|random]` (Sahih al-Bukhari, Arabic with Urdu translation via the fawazahmed0 hadith API on jsDelivr), `.qibla [city]` (bearing from aladhan.com), `.hijri [dd-mm-yyyy]` (today or convert), `.zakat <amount>` (2.5%) and the `.mini tasbih` counter (33, 99 or 100 targets, rounds, undo). They appear under `.menu islam`.
 
 ## Text tools, reminders and more
 | Command | What it does |

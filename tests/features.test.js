@@ -401,3 +401,15 @@ test('extras: poll, owner contact, setname/lock guard', async () => {
   await run('setname', ['New', 'Name']); assert.deepEqual(calls[0], ['subject', 'New Name']);
   await run('lock', []); assert.deepEqual(calls[1], ['setting', 'locked']);
 });
+
+test('hijri and zakat', async () => {
+  const api = require('../lib/apis');
+  const h = await api.hijri('16-11-2026', async () => ({ ok: true, status: 200, json: async () => ({ data: { hijri: { day: '6', month: { number: 6, en: 'Jumada', ar: 'x' }, year: '1448', weekday: { en: 'Al Athnayn' } } } }) }));
+  assert.equal(h.year, '1448'); assert.equal(await api.hijri('bad'), null);
+  assert.ok(/^\d{2}-\d{2}-\d{4}$/.test(api.todayKarachi()));
+  const { loadPlugins } = require('../lib/pluginLoader');
+  const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+  const out = []; const ctx = { prefix: '.', config: {}, reply: async (x) => out.push(x), args: ['1,000,000'] };
+  await ps.find((p) => p.name === 'zakat').handler(ctx);
+  assert.ok(out[0].includes('25,000'));
+});
