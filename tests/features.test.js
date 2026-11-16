@@ -386,3 +386,18 @@ test('text tools, reminders and asma', async () => {
   await ps.find((p) => p.name === 'base64').handler({ ...ctx, args: ['dec', 'aGVsbG8='] });
   assert.deepEqual(out, ['aGVsbG8=', 'hello']);
 });
+
+test('extras: poll, owner contact, setname/lock guard', async () => {
+  const { loadPlugins } = require('../lib/pluginLoader');
+  const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+  const out = []; const calls = [];
+  const sock = { user: { id: '9230:1@s.whatsapp.net' }, sendMessage: async (j, c) => out.push(c), groupMetadata: async () => ({ participants: [{ id: '9230@s.whatsapp.net', admin: 'admin' }, { id: '9211@s.whatsapp.net', admin: 'admin' }] }), groupUpdateSubject: async (j, n) => calls.push(['subject', n]), groupSettingUpdate: async (j, s) => calls.push(['setting', s]) };
+  const ctx = { jid: 'g@g.us', sender: '9211@s.whatsapp.net', prefix: '.', group: true, config: { prefix: '.', botName: 'B', ownerNumber: '92300' }, sock, reply: async (x) => out.push(x), m: { message: {} }, args: [] };
+  const run = (n, args) => ps.find((p) => p.name === n).handler({ ...ctx, args });
+  await run('poll', ['Lunch?', '|', 'Pizza', '|', 'Biryani', '|', 'Pizza']);
+  assert.deepEqual(out[0].poll.values, ['Pizza', 'Biryani']);
+  await run('poll', ['only', 'one']); assert.ok(typeof out[1] === 'string');
+  await run('owner', []); assert.ok(out[2].contacts.contacts[0].vcard.includes('waid=92300'));
+  await run('setname', ['New', 'Name']); assert.deepEqual(calls[0], ['subject', 'New Name']);
+  await run('lock', []); assert.deepEqual(calls[1], ['setting', 'locked']);
+});

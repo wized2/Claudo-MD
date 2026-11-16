@@ -77,3 +77,6 @@ Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot
 | `.ssweb <url>` | Website screenshot (thum.io) |
 | `.remind 10m <note>`, `.remind list`, `.remind cancel <id>` | Reminders, saved to disk and re-armed after a restart (1 second to 24 days) |
 | `.asma [1-99\|random]` | The 99 names of Allah (Arabic, transliteration, English meaning) from aladhan.com |
+
+## Group and misc extras
+`.setname`, `.setdesc`, `.lock` / `.unlock` (who can edit group info), `.poll Question | A | B | C` (native WhatsApp poll), `.owner` (sends the owner's contact card).
