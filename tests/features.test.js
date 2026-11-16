@@ -273,3 +273,27 @@ test('features: antidelete forwards, anticall rejects, settings toggles', async 
   await ps.find((p) => p.name === 'settings').handler({ ...ctx, args: ['mode', 'public'] });
   assert.equal(F.isPrivate(), false);
 });
+
+test('apk: search parsing, package lookup, plugin sends document or link', async () => {
+  const apk = require('../lib/apk');
+  const item = (pkg, size) => ({ name: 'App ' + pkg, package: pkg, size, icon: 'https://i/x.png', developer: { name: 'Dev' }, file: { vername: '1.2', path: 'https://pool/x.apk', md5sum: 'abc', malware: { rank: 'TRUSTED' } }, stats: { downloads: 2500000 }, obb: null });
+  const fake = async (url) => ({ ok: true, json: async () => ({ datalist: { list: [item('com.a.b', 5e6), item('com.c.d', 300e6), { name: 'nofile', package: 'x.y' }] } }) });
+  const r = await apk.search('a', 8, fake);
+  assert.equal(r.length, 2); assert.equal(r[0].trusted, true); assert.equal(apk.short(2500000), '2.5M'); assert.equal(apk.mb(5e6), '4.8 MB');
+  assert.equal((await apk.byPackage('com.c.d', fake)).pkg, 'com.c.d');
+  assert.equal(await apk.byPackage('nope.nope', fake), null);
+  const orig = global.fetch; global.fetch = fake;
+  try {
+    const { loadPlugins } = require('../lib/pluginLoader');
+    const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+    const out = [];
+    const ctx = { jid: 'a@s.whatsapp.net', sender: 'a@s.whatsapp.net', prefix: '.', config: { prefix: '.', botName: 'B' }, sock: { sendMessage: async (_, c) => out.push(c), relayMessage: async () => {} }, reply: async (x) => out.push(x), m: { message: {} } };
+    await ps.find((p) => p.name === 'apk').handler({ ...ctx, args: ['a'] });
+    await ps.find((p) => p.name === 'apkget').handler({ ...ctx, args: ['com.a.b'] });
+    assert.ok(out.some((o) => o && o.document && /\.apk$/.test(o.fileName) && o.mimetype.includes('android.package-archive')));
+    const before = out.length;
+    await ps.find((p) => p.name === 'apkget').handler({ ...ctx, args: ['com.c.d'] });
+    assert.ok(out.length > before && !out.slice(before).some((o) => o && o.document));
+    await ps.find((p) => p.name === 'apkget').handler({ ...ctx, args: ['../bad'] });
+  } finally { global.fetch = orig; }
+});

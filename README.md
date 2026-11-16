@@ -45,3 +45,6 @@ Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot
 
 ## Settings (owner)
 `.settings` opens a tap list: **mode** public/private (private = only you can use commands), **auto read**, **typing status**, **anti call** (rejects calls with a note) and **anti delete** (forwards deleted messages to your DM, for messages the bot has seen since it started). Also `.settings <feature> on|off`.
+
+## APK downloads
+`.apk <name>` searches Aptoide (keyless public API) and shows a tap list. Picking one runs `.apkget <package>`, which sends the APK as a document (with version, size, developer, scan status). Files over `APK_MAX_MB` (default 100) get a direct link button instead. Apps with OBB data are flagged. Set `APTOIDE_API` to use another endpoint.
