@@ -16,12 +16,15 @@ const APPS = {
   age: ['Age Calculator', 'Exact age and days to next birthday'],
   counter: ['Tally Counter', 'Big tap button with best score'],
   dice: ['Dice Roller', 'd4 to d100, up to 10 dice'],
+  sci: ['Scientific Calculator', 'Trig, logs, powers, factorial, DEG/RAD'],
+  color: ['Color Picker', 'Tap hues, get HEX, RGB and HSL'],
+  decide: ['Decision Wheel', 'Cannot choose? Let luck pick'],
 };
-const ALIAS = { calculator: 'calc', stopwatch: 'clock', timer: 'clock', split: 'tip', convert: 'units', converter: 'units', password: 'pass', passgen: 'pass', tally: 'counter', roll: 'dice', dice: 'dice' };
+const ALIAS = { calculator: 'calc', stopwatch: 'clock', timer: 'clock', split: 'tip', convert: 'units', converter: 'units', password: 'pass', passgen: 'pass', tally: 'counter', roll: 'dice', dice: 'dice', scientific: 'sci', colour: 'color', wheel: 'decide', pick: 'decide' };
 
 module.exports = [
   {
-    name: 'mini', pattern: 'mini', aliases: ['tools2', 'miniapps'], category: 'apps', desc: 'Offline mini apps: calculator, timer, converter', usage: 'mini [calc|clock|tip|units|pass|bmi|age|counter|dice] [file]', direct: true,
+    name: 'mini', pattern: 'mini', aliases: ['tools2', 'miniapps'], category: 'apps', desc: 'Offline mini apps: calculator, timer, converter', usage: 'mini [calc|clock|tip|units|pass|bmi|age|counter|dice|sci|color|decide] [file]', direct: true,
     async handler(ctx) {
       const p = ctx.prefix;
       let k = (ctx.args[0] || '').toLowerCase(); k = ALIAS[k] || k;

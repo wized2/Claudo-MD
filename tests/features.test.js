@@ -233,7 +233,7 @@ test('mini apps: every app file exists, list and send-as-file work', async () =>
   const { loadPlugins } = require('../lib/pluginLoader');
   const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
   const mini = ps.find((p) => p.name === 'mini');
-  for (const f of ['calc', 'clock', 'tip', 'units', 'pass', 'bmi', 'age', 'counter', 'dice']) {
+  for (const f of ['calc', 'clock', 'tip', 'units', 'pass', 'bmi', 'age', 'counter', 'dice', 'sci', 'color', 'decide']) {
     const h = fs.readFileSync(path.join(__dirname, '..', 'public', 'mini', f + '.html'), 'utf8');
     assert.ok(h.startsWith('<!doctype html>') && !/https?:\/\//.test(h.replace(/https?:\/\/www\.w3\.org\S*/g, '')), f);
   }

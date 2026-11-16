@@ -1,0 +1,56 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Scientific Calculator</title><style>
+:root{--bg:#0e1116;--card:#171b23;--line:#262c38;--tx:#e8ecf4;--mut:#8b95a8;--ac:#7cf0c0;--ac2:#6aa8ff;--bad:#ff7a8a}
+@media(prefers-color-scheme:light){:root{--bg:#f3f5f9;--card:#fff;--line:#dde2ec;--tx:#141922;--mut:#5d687c;--ac:#0a9c6b;--ac2:#2b6be0;--bad:#d6334a}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{display:flex;flex-direction:column;align-items:center;padding:16px 14px 26px;gap:12px;user-select:none;touch-action:manipulation}
+.w{width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px}
+h1{margin:0;font-size:18px;letter-spacing:.16em;text-transform:uppercase;text-align:center}
+h1 small{display:block;font-size:10px;font-weight:500;color:var(--mut);letter-spacing:.22em;margin-top:3px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+button,select,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 14px}
+button{cursor:pointer}button:active{transform:scale(.96)}
+button.pri{background:var(--ac);color:#06130d;border-color:transparent;font-weight:700}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chips button{flex:1;padding:9px 6px;font-size:14px}
+.chips button.on{background:var(--ac2);color:#fff;border-color:transparent}
+.lbl{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.big{font-size:34px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1;min-width:0}
+</style></head><body><div class="w">
+<h1>Scientific<small>degrees or radians</small></h1>
+<style>#d{text-align:right;min-height:84px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;overflow:hidden}
+#h{color:var(--mut);font-size:14px;min-height:18px;word-break:break-all}#e{font-size:30px;font-weight:700;word-break:break-all}
+.k{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.k button{font-size:17px;padding:0;height:54px}
+.k .o{color:var(--ac2)}.k .f{color:var(--bad)}.k .s{color:var(--ac);font-size:15px}.k .eq{background:var(--ac);color:#06130d;border-color:transparent;font-weight:700}</style>
+<div class="card" id="d"><div id="h"></div><div id="e">0</div></div><div class="chips"><button class="on" id="dg">DEG</button><button id="rd">RAD</button></div><div class="k" id="k"></div>
+<script>
+var ex='',last='',fresh=0,deg=1,E=document.getElementById('e'),H=document.getElementById('h');
+var L=[['sin(','s'],['cos(','s'],['tan(','s'],['ln(','s'],['log(','s'],['√(','s'],['^','o'],['!','o'],['π','s'],['e','s'],['AC','f'],['(',''],[')',''],['⌫','f'],['÷','o'],['7'],['8'],['9'],['×','o'],['%','o'],['4'],['5'],['6'],['−','o'],['1/x','o'],['1'],['2'],['3'],['+','o'],['x²','o'],['0'],['.'],['EXP','o'],['=','eq'],['ANS','o']];
+function fact(n){if(n<0||n!=Math.floor(n)||n>170)throw 0;var r=1;for(var i=2;i<=n;i++)r*=i;return r}
+function ev(s,an){var t=s.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-').replace(/π/g,'(pi)').replace(/√/g,'sqrt').replace(/EXP/g,'*10^').match(/[0-9]*[.]?[0-9]+|[a-z]+|[-+*/()%^!]/g)||[],i=0;
+function tr(x){return deg?x*Math.PI/180:x}
+function pe(){var v=pt();while(t[i]=='+'||t[i]=='-'){var o=t[i++],r=pt();v=o=='+'?v+r:v-r}return v}
+function pt(){var v=pu();while(t[i]=='*'||t[i]=='/'){var o=t[i++],r=pu();v=o=='*'?v*r:v/r}return v}
+function pu(){if(t[i]=='-'){i++;return -pu()}return pw()}
+function pw(){var b=pp();if(t[i]=='^'){i++;return Math.pow(b,pu())}return b}
+function pp(){var v=pa();while(t[i]=='!'||t[i]=='%'){if(t[i++]=='!')v=fact(v);else v/=100}return v}
+function pa(){var x=t[i],v;if(x=='('){i++;v=pe();if(t[i]!=')')throw 0;i++;return v}
+if(/^[a-z]+$/.test(x)){i++;if(x=='pi')return Math.PI;if(x=='e')return Math.E;if(x=='ans')return an;if(t[i]!='(')throw 0;i++;v=pe();if(t[i]!=')')throw 0;i++;
+var F={sin:function(a){return Math.sin(tr(a))},cos:function(a){return Math.cos(tr(a))},tan:function(a){return Math.tan(tr(a))},ln:Math.log,log:Math.log10,sqrt:Math.sqrt};if(!F[x])throw 0;return F[x](v)}
+v=parseFloat(x);if(isNaN(v))throw 0;i++;return v}
+var r=pe();if(i<t.length)throw 0;return r}
+var an=0;
+function fmt(n){if(!isFinite(n)||isNaN(n))throw 0;if(Math.abs(n)<1e-12)n=0;return String(+n.toPrecision(12))}
+function show(){E.textContent=ex||'0';H.textContent=last;E.style.fontSize=ex.length>14?'20px':'30px'}
+function press(k){
+if(k=='AC'){ex='';last='';fresh=0}else if(k=='⌫')ex=ex.slice(0,-1);
+else if(k=='='){if(ex){try{var r=fmt(ev(ex.replace(/ANS/g,'ans'),an));last=ex+' =';ex=r;an=+r;fresh=1}catch(e){last='error';ex=''}}}
+else if(k=='1/x'){if(ex){try{ex=fmt(1/ev(ex,an));fresh=1}catch(e){last='error';ex=''}}}
+else if(k=='x²'){if(ex){try{ex=fmt(Math.pow(ev(ex,an),2));fresh=1}catch(e){last='error';ex=''}}}
+else{var v=k=='ANS'?'ans':k;if(fresh&&/^[0-9.(πe]|^[a-z√]/.test(k))ex='';ex+=v;fresh=0}
+show()}
+var K=document.getElementById('k');L.forEach(function(a){var b=document.createElement('button');b.textContent=a[0];b.className=a[1]||'';b.onclick=function(){press(a[0])};K.appendChild(b)});
+function setd(d){deg=d;document.getElementById('dg').className=d?'on':'';document.getElementById('rd').className=d?'':'on'}
+document.getElementById('dg').onclick=function(){setd(1)};document.getElementById('rd').onclick=function(){setd(0)};show();
+</script>
+</div></body></html>

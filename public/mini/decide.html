@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Decision Wheel</title><style>
+:root{--bg:#0e1116;--card:#171b23;--line:#262c38;--tx:#e8ecf4;--mut:#8b95a8;--ac:#7cf0c0;--ac2:#6aa8ff;--bad:#ff7a8a}
+@media(prefers-color-scheme:light){:root{--bg:#f3f5f9;--card:#fff;--line:#dde2ec;--tx:#141922;--mut:#5d687c;--ac:#0a9c6b;--ac2:#2b6be0;--bad:#d6334a}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{display:flex;flex-direction:column;align-items:center;padding:16px 14px 26px;gap:12px;user-select:none;touch-action:manipulation}
+.w{width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px}
+h1{margin:0;font-size:18px;letter-spacing:.16em;text-transform:uppercase;text-align:center}
+h1 small{display:block;font-size:10px;font-weight:500;color:var(--mut);letter-spacing:.22em;margin-top:3px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+button,select,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 14px}
+button{cursor:pointer}button:active{transform:scale(.96)}
+button.pri{background:var(--ac);color:#06130d;border-color:transparent;font-weight:700}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chips button{flex:1;padding:9px 6px;font-size:14px}
+.chips button.on{background:var(--ac2);color:#fff;border-color:transparent}
+.lbl{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.big{font-size:34px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1;min-width:0}
+</style></head><body><div class="w">
+<h1>Decide<small>can not choose? let luck pick</small></h1>
+<div class="card"><div class="lbl">Options, one per line</div><textarea id="t" rows="5" style="width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;user-select:text">Pizza
+Burger
+Biryani</textarea></div>
+<div class="card" style="text-align:center;min-height:110px;display:flex;align-items:center;justify-content:center"><div class="big" id="r" style="font-size:30px;word-break:break-word">?</div></div>
+<button class="pri" id="g" style="font-size:20px;padding:16px">Pick one</button>
+<script>
+var $=function(i){return document.getElementById(i)},busy=0;
+function rnd(k){var a=new Uint32Array(1),l=4294967296-4294967296%k;do{crypto.getRandomValues(a)}while(a[0]>=l);return a[0]%k}
+$('g').onclick=function(){if(busy)return;var o=$('t').value.split(String.fromCharCode(10)).map(function(x){return x.trim()}).filter(Boolean);if(o.length<2){$('r').textContent='add 2+ options';return}
+busy=1;var n=0,w=rnd(o.length),total=14+rnd(6),r=$('r');r.style.color='var(--tx)';(function step(){var v=n<total?o[rnd(o.length)]:o[w];r.textContent=v;if(n++<total)setTimeout(step,60+n*12);else{r.style.color='var(--ac)';busy=0;try{navigator.vibrate&&navigator.vibrate(30)}catch(e){}}})()};
+</script>
+</div></body></html>
