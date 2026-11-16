@@ -84,13 +84,29 @@ function autoRestore() {
     var obj = B.validate(B.parse(fs.readFileSync(path.join(ROOT, pick))));
     var r = B.restore(obj, { dataDir: DATA, sessionDir: SESSION, withSession: !nonEmpty(SESSION) });
     log('restored', pick, '-', r.data, 'data files,', r.session, 'session files');
+    try { fs.renameSync(path.join(ROOT, pick), path.join(ROOT, pick + '.restored')); } catch (e) {}
   } catch (e) { log('restore skipped:', e.message); }
 }
 
-var child = null, stopping = false;
+/** Rolling local safety copies in ./backups (last 5), taken at start and before applying an update. */
+function snapshot(tag) {
+  try {
+    var B = require(path.join(BOT, 'lib', 'backup.js'));
+    var dir = path.join(ROOT, 'backups');
+    fs.mkdirSync(dir, { recursive: true });
+    var b = B.build({ dataDir: DATA, sessionDir: SESSION, full: false });
+    if (!Object.keys(b.files).length) return;
+    fs.writeFileSync(path.join(dir, 'auto-' + tag + '-' + Date.now() + '.json'), JSON.stringify(b));
+    var old = fs.readdirSync(dir).filter(function (f) { return /^auto-.*\.json$/.test(f); }).sort();
+    while (old.length > 5) { try { fs.unlinkSync(path.join(dir, old.shift())); } catch (e) {} }
+  } catch (e) { log('snapshot skipped:', e.message); }
+}
+
+var child = null, stopping = false, fast = 0, startedAt = 0;
 function start() {
   if (child) { try { child.kill('SIGTERM'); } catch (e) {} child = null; }
-  log('start - phone', PHONE, '- port', CONFIG.port);
+  log('start - phone', PHONE, '- port', CONFIG.port, '- version', head().slice(0, 7));
+  startedAt = Date.now();
   child = spawn(process.execPath, ['index.js'], {
     cwd: BOT,
     stdio: 'inherit',
@@ -102,7 +118,11 @@ function start() {
   child.on('exit', function (c, s) {
     log('bot exited', c, s || '');
     child = null;
-    if (!stopping) setTimeout(start, 3000);
+    if (stopping) return;
+    fast = Date.now() - startedAt < 20000 ? Math.min(fast + 1, 5) : 0;
+    var wait = 3000 * Math.pow(2, fast);
+    if (fast) log('crashed quickly, waiting', Math.round(wait / 1000) + 's');
+    setTimeout(start, wait);
   });
 }
 
@@ -110,8 +130,9 @@ log('Claudo-MD runner - branch', BRANCH, '- root', ROOT);
 ensureBot();
 update();
 autoRestore();
+snapshot('start');
 start();
-setInterval(function () { if (update()) { log('restarting for update'); start(); } }, Math.max(1, CONFIG.updateEveryMin) * 60000);
+setInterval(function () { snapshot('update'); if (update()) { log('restarting for update'); start(); } }, Math.max(1, CONFIG.updateEveryMin) * 60000);
 ['SIGINT', 'SIGTERM'].forEach(function (sig) {
   process.on(sig, function () { stopping = true; if (child) child.kill('SIGTERM'); process.exit(0); });
 });
