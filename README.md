@@ -57,3 +57,11 @@ Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot
 | `.github <user \| owner/repo>` | Profile or repo stats | api.github.com |
 | `.pokemon <name\|id>` | Pokedex card with art | pokeapi.co |
 | `.crypto <symbol>` | Spot price and 24h change | Binance public API |
+
+## Social and safety extras
+| Command | What it does |
+|---|---|
+| `.tts [lang] <text>` | Text to speech (en, ur, ar, hi, fr, es, tr, id, bn, fa), up to 200 characters |
+| `.afk [reason]` | Marks you away. Anyone who tags or replies to you is told, and you are welcomed back on your next message |
+| `.antibad off\|warn\|kick`, `.antibad add\|del <word>`, `.antibad list` | Group admins pick the words to delete. No default list, so you decide what is blocked |
+| `.ban` / `.unban` | Owner only. Blocked numbers are ignored by the bot (number, mention or reply) |

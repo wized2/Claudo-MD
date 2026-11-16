@@ -318,3 +318,32 @@ test('api helpers parse prayer, ayah, github, pokemon, crypto and handle 404', a
   const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
   for (const n of ['prayer', 'ayah', 'github', 'pokemon', 'crypto']) assert.ok(ps.find((x) => x.name === n), n);
 });
+
+test('afk set/notify/return, badwords match, ban, tts usage', async () => {
+  const fs = require('fs'), os = require('os');
+  process.env.FORWARDS_JSON = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'afk-')), 'channel-forwards.json');
+  const afk = require('../lib/afk'), protect = require('../lib/protect');
+  const away = { key: { remoteJid: 'g@g.us', participant: '9211@s.whatsapp.net', participantPn: '9211@s.whatsapp.net' }, message: {} };
+  afk.set(away, 'g@g.us', 'lunch');
+  const tag = { key: { remoteJid: 'g@g.us', participant: '9222@s.whatsapp.net' }, message: { extendedTextMessage: { text: 'hey @9211', contextInfo: { mentionedJid: ['9211@s.whatsapp.net'] } } } };
+  const l1 = afk.check(tag, 'g@g.us', 'hey @9211', '.');
+  assert.ok(l1.length === 1 && l1[0].includes('@9211 is AFK: lunch'));
+  assert.deepEqual(afk.check({ key: away.key, message: { conversation: '.afk again' } }, 'g@g.us', '.afk again', '.'), []);
+  const back = afk.check({ key: away.key, message: { conversation: 'hi' } }, 'g@g.us', 'hi', '.');
+  assert.ok(/Welcome back/.test(back[0]));
+  assert.deepEqual(afk.check(tag, 'g@g.us', 'hey', '.'), []);
+  assert.equal(protect.hitBad('You are a Foo!', ['foo']), 'foo');
+  assert.equal(protect.hitBad('food court', ['foo']), null);
+  assert.equal(protect.hitBad('anything', []), null);
+  const { loadPlugins } = require('../lib/pluginLoader');
+  const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+  const out = [];
+  const ctx = { jid: 'o@s.whatsapp.net', sender: 'o@s.whatsapp.net', prefix: '.', config: { prefix: '.', botName: 'B' }, sock: { sendMessage: async (_, c) => out.push(c), onWhatsApp: async (j) => [{ exists: true, jid: j }] }, reply: async (x) => out.push(x), m: { message: {} }, args: [] };
+  await ps.find((p) => p.name === 'tts').handler(ctx);
+  assert.ok(out.length === 1);
+  const settings = require('../lib/settings');
+  await ps.find((p) => p.name === 'ban').handler({ ...ctx, args: ['92 300 1234567'] });
+  assert.deepEqual(settings.get('banned'), ['923001234567']);
+  await ps.find((p) => p.name === 'unban').handler({ ...ctx, args: ['923001234567'] });
+  assert.deepEqual(settings.get('banned'), []);
+});

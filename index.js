@@ -14,6 +14,7 @@ const botState = require('./lib/botState');
 const protect = require('./lib/protect');
 const backup = require('./lib/backup');
 const features = require('./lib/features');
+const afk = require('./lib/afk');
 const settingsStore = require('./lib/settings');
 const jsonStore = require('./lib/jsonStore');
 const { isOwner } = require('./lib/owner');
@@ -158,9 +159,18 @@ async function startBot() {
         if (type === 'notify' && !m.key.fromMe && features.on('autoread')) sock.readMessages([m.key]).catch(() => {});
         const text = extractText(m.message).trim();
         if (!text) continue;
+        if (!m.key.fromMe && !botState.isIdle()) {
+          const lines = afk.check(m, jid, text, config.prefix);
+          if (lines.length) {
+            const mentions = [...lines.join(' ').matchAll(/@(\d{6,})/g)].map((x) => x[1] + '@s.whatsapp.net');
+            await antiBan.enqueueSend(() => sock.sendMessage(jid, { text: lines.join('\n'), mentions }, { quoted: m })).catch(() => {});
+          }
+        }
         if (jid.endsWith('@g.us') && !botState.isIdle()) {
           const r = await protect.checkAntiLink(sock, m, text, { config }).catch(() => 'ignored');
           if (r !== 'ignored') continue;
+          const rb = await protect.checkBadWords(sock, m, text, { config }).catch(() => 'ignored');
+          if (rb !== 'ignored') continue;
         }
         const hit = matchPlugin(plugins, text, config.prefix);
         if (!hit) continue;
@@ -179,6 +189,7 @@ async function startBot() {
         ctx.isOwner = isOwner(ctx);
         const p = hit.plugin;
         if (features.isPrivate() && !ctx.isOwner) continue;
+        if (!ctx.isOwner && (settingsStore.get('banned') || []).includes(String(sender).split('@')[0].split(':')[0].replace(/\D/g, ''))) continue;
         if (p.owner && !ctx.isOwner) { await send(ui.small('owner only')); continue; }
         if (features.on('typing')) sock.sendPresenceUpdate('composing', jid).catch(() => {});
         if (p.group && !group) { await send(ui.small('groups only')); continue; }
