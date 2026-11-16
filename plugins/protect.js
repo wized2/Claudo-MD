@@ -23,4 +23,13 @@ module.exports = [
       await native.buttons(ctx, { title: 'Welcome', body: ui.card('Welcome', [ui.row('status', P.getCfg(ctx.jid).welcome ? 'on' : 'off')], { foot: false }), footer: ctx.config.botName, buttons: [{ id: p + 'welcome on', text: 'On' }, { id: p + 'welcome off', text: 'Off' }] });
     },
   },
+  {
+    name: 'goodbye', pattern: 'goodbye', aliases: ['bye'], category: 'group', group: true, desc: 'Say goodbye when someone leaves: on or off', usage: 'goodbye on|off',
+    async handler(ctx) {
+      const g2 = await guard(ctx, { needBot: false }); if (!g2) return;
+      const v = (ctx.args[0] || '').toLowerCase();
+      if (v === 'on' || v === 'off') { P.setCfg(ctx.jid, { goodbye: v === 'on' }); return ctx.reply(ui.row('goodbye', v)); }
+      await native.buttons(ctx, { title: 'Goodbye', body: ui.card('Goodbye', [ui.row('status', P.getCfg(ctx.jid).goodbye ? 'on' : 'off')], { foot: false }), footer: ctx.config.botName, buttons: [{ id: ctx.prefix + 'goodbye on', text: 'Turn on' }, { id: ctx.prefix + 'goodbye off', text: 'Turn off' }] });
+    },
+  },
 ];

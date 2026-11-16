@@ -3,6 +3,7 @@ const path = require('path');
 const pino = require('pino');
 const qrcode = require('qrcode');
 const config = require('./config');
+{ const sp = require('./lib/settings').get('prefix'); if (sp && typeof sp === 'string') config.prefix = sp; }
 const { loadPlugins, matchPlugin, extractText } = require('./lib/pluginLoader');
 const { startPairServer } = require('./lib/pairServer');
 const msgStore = require('./lib/msgStore');

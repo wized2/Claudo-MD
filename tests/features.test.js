@@ -413,3 +413,28 @@ test('hijri and zakat', async () => {
   await ps.find((p) => p.name === 'zakat').handler(ctx);
   assert.ok(out[0].includes('25,000'));
 });
+
+test('ttp sticker, tagadmins, prefix, broadcast, goodbye', async () => {
+  const fs = require('fs'), os = require('os');
+  process.env.FORWARDS_JSON = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'ot-')), 'channel-forwards.json');
+  const img = require('../lib/imgtools'); const protect = require('../lib/protect');
+  const buf = await img.textSticker('Hello brave new world');
+  assert.ok(buf.length > 500 && buf.slice(0, 4).toString() === 'RIFF');
+  const { loadPlugins } = require('../lib/pluginLoader');
+  const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+  const out = []; const sent = [];
+  const sock = { user: { id: '9230:1@s.whatsapp.net' }, sendMessage: async (j, c) => sent.push([j, c]), groupMetadata: async () => ({ subject: 'G', participants: [{ id: '9211@s.whatsapp.net', admin: 'admin' }, { id: '9222@s.whatsapp.net' }] }), groupFetchAllParticipating: async () => ({ 'a@g.us': {}, 'b@g.us': {} }) };
+  const config = { prefix: '.', botName: 'B' };
+  const ctx = { jid: 'g@g.us', sender: '9211@s.whatsapp.net', prefix: '.', group: true, config, sock, reply: async (x) => out.push(x), m: { message: {} }, args: [], pause: 0 };
+  const run = (n, args) => ps.find((p) => p.name === n).handler({ ...ctx, args });
+  await run('ttp', ['hi']); assert.ok(out[0].sticker);
+  await run('tagadmins', []); assert.deepEqual(out[1].mentions, ['9211@s.whatsapp.net']);
+  await run('prefix', ['!']); assert.equal(config.prefix, '!'); await run('prefix', ['ab']); assert.equal(config.prefix, '!');
+  await run('broadcast', ['hello']); assert.equal(sent.filter((s) => s[0].endsWith('@g.us')).length, 2);
+  protect.setCfg('g@g.us', { goodbye: true });
+  await protect.onParticipants(sock, { id: 'g@g.us', action: 'remove', participants: ['9222@s.whatsapp.net'] }, config);
+  assert.ok(sent[sent.length - 1][1].text.includes('𝗚𝗢𝗢𝗗𝗕𝗬𝗘'));
+  protect.setCfg('g@g.us', { goodbye: false });
+  const n = sent.length; await protect.onParticipants(sock, { id: 'g@g.us', action: 'remove', participants: ['9222@s.whatsapp.net'] }, config);
+  assert.equal(sent.length, n);
+});

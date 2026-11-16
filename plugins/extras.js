@@ -1,9 +1,26 @@
 const ui = require('../lib/ui');
 const { guard } = require('../lib/groupTools');
+const img = require('../lib/imgtools');
 
 const body = (ctx) => ctx.args.join(' ').trim();
 
 module.exports = [
+  {
+    name: 'ttp', pattern: 'ttp', aliases: ['textsticker', 'attp'], category: 'tools', desc: 'Turn text into a sticker', usage: 'ttp <text>',
+    async handler(ctx) {
+      const t = body(ctx) || ((((ctx.m && ctx.m.message && ctx.m.message.extendedTextMessage) || {}).contextInfo || {}).quotedMessage || {}).conversation || '';
+      if (!t) return ctx.reply(ui.card('Text sticker', [ui.cmd(ctx.prefix, 'ttp Hello world')], { foot: false }));
+      try { await ctx.reply({ sticker: await img.textSticker(t) }); } catch (e) { await ctx.reply(ui.note('could not make the sticker')); }
+    },
+  },
+  {
+    name: 'tagadmins', pattern: 'tagadmins', aliases: ['admins'], category: 'group', group: true, desc: 'Mention all group admins',
+    async handler(ctx) {
+      const meta = await ctx.sock.groupMetadata(ctx.jid);
+      const ids = meta.participants.filter((x) => x.admin).map((x) => x.id);
+      await ctx.reply({ text: ui.card('Admins', [body(ctx) ? ui.bold(body(ctx)) : '', ...ids.map((id) => ui.item('@' + id.split('@')[0]))].filter(Boolean), { foot: false }), mentions: ids });
+    },
+  },
   {
     name: 'setname', pattern: 'setname', aliases: ['gname'], category: 'group', group: true, desc: 'Change the group name', usage: 'setname <new name>',
     async handler(ctx) {

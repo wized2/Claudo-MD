@@ -83,3 +83,6 @@ Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot
 
 ## Design
 Every reply uses the same look from `lib/ui.js`: a left-rail card (`╭─❖ TITLE`, `│` lines, `╰─ footer`), `◈ key › value` rows, `❯ .command  description` lines, `├─ Section` breaks and `❖ note` one-liners. There is no right edge, so it stays tidy in WhatsApp's proportional font. `.menu` shows status and categories, `.menu <category>` lists commands with tap buttons, `.menu all` prints everything, and `.usage <command>` shows details. Use `ui.card`, `ui.row`, `ui.cmd`, `ui.note` in new plugins to match.
+
+## More owner and group tools
+`.prefix [new]` (change the prefix at runtime, saved), `.restart`, `.broadcast <text>` (one group every 4 s, max 50), `.ttp <text>` (text to sticker), `.tagadmins`, `.goodbye on|off` (per group, like `.welcome`).
