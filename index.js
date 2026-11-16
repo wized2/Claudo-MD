@@ -61,7 +61,7 @@ const clearSession = () => {
   } catch (_) {}
 };
 
-const CONTROL = new Set(['stop', 'start', 'status', 'menu', 'help', 'commands', 'm', 'list', 'usage', 'find']);
+const CONTROL = new Set(['stop', 'start', 'status', 'menu', 'help', 'commands', 'm', 'list', 'usage', 'find', 'restart', 'reboot', 'update', 'upgrade', 'pull', 'checkupdate', 'check', 'cu', 'updatecheck', 'refresh', 'reload']);
 
 async function startBot() {
   const { state: auth, saveCreds } = await useMultiFileAuthState(sessionDir);
