@@ -14,11 +14,11 @@ function userAction(name, action, desc, verb) {
     async handler(ctx) {
       const g = await guard(ctx); if (!g) return;
       const t = await resolveTarget(ctx);
-      if (!t.jid) return ctx.reply(ui.small(t.error || 'reply to, mention, or give a number'));
+      if (!t.jid) return ctx.reply(ui.note(t.error || 'reply to, mention, or give a number'));
       try {
         await ctx.sock.groupParticipantsUpdate(ctx.jid, [t.jid], action);
         await ctx.reply(ui.card(verb, [ui.row('user', '+' + t.number)], { foot: false }));
-      } catch (e) { await ctx.reply(ui.small('failed: ' + (e.message || e))); }
+      } catch (e) { await ctx.reply(ui.note('failed: ' + (e.message || e))); }
     },
   };
 }
@@ -64,7 +64,7 @@ module.exports = [
   },
   {
     name: 'revoke', pattern: 'revoke', category: 'group', group: true, desc: 'Reset invite link',
-    async handler(ctx) { const g = await guard(ctx); if (!g) return; await ctx.sock.groupRevokeInvite(ctx.jid); await ctx.reply(ui.small('invite link reset')); },
+    async handler(ctx) { const g = await guard(ctx); if (!g) return; await ctx.sock.groupRevokeInvite(ctx.jid); await ctx.reply(ui.note('invite link reset')); },
   },
   {
     name: 'ginfo', pattern: 'ginfo', aliases: ['groupinfo'], category: 'group', group: true, desc: 'Group details',
@@ -79,7 +79,7 @@ module.exports = [
     async handler(ctx) {
       const g = await guard(ctx); if (!g) return;
       const ci = require('../lib/target').ctxInfo(ctx.m);
-      if (!ci.stanzaId) return ctx.reply(ui.small('reply to the message to delete'));
+      if (!ci.stanzaId) return ctx.reply(ui.note('reply to the message to delete'));
       await ctx.sock.sendMessage(ctx.jid, { delete: { remoteJid: ctx.jid, fromMe: false, id: ci.stanzaId, participant: ci.participant } });
     },
   },
@@ -88,7 +88,7 @@ module.exports = [
     async handler(ctx) {
       const g = await guard(ctx); if (!g) return;
       const t = await resolveTarget(ctx);
-      if (!t.jid) return ctx.reply(ui.small('reply to or mention a member'));
+      if (!t.jid) return ctx.reply(ui.note('reply to or mention a member'));
       const w = loadWarns(); const key = ctx.jid + '|' + t.number;
       w[key] = (w[key] || 0) + 1; saveWarns(w);
       const n = w[key];
@@ -105,7 +105,7 @@ module.exports = [
       const reset = (ctx.args[0] || '').toLowerCase() === 'reset';
       if (reset) ctx.args.shift();
       const t = await resolveTarget(ctx);
-      if (!t.jid) return ctx.reply(ui.small('reply to or mention a member'));
+      if (!t.jid) return ctx.reply(ui.note('reply to or mention a member'));
       const w = loadWarns(); const key = ctx.jid + '|' + t.number;
       if (reset) { delete w[key]; saveWarns(w); return ctx.reply(ui.row('warnings', 'cleared')); }
       await ctx.reply(ui.card('Warnings', [ui.row('user', '+' + t.number), ui.row('count', (w[key] || 0) + ' / ' + WARN_LIMIT)], { foot: false }));

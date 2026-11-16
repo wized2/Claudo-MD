@@ -9,7 +9,7 @@ module.exports = [
     async handler(ctx) {
       const g = await guard(ctx); if (!g) return;
       const n = body(ctx).slice(0, 100); if (!n) return ctx.reply(ui.card('Group name', [ui.cmd(ctx.prefix, 'setname New name')], { foot: false }));
-      try { await ctx.sock.groupUpdateSubject(ctx.jid, n); await ctx.reply(ui.row('name', n)); } catch (e) { await ctx.reply(ui.small('failed: ' + (e.message || e))); }
+      try { await ctx.sock.groupUpdateSubject(ctx.jid, n); await ctx.reply(ui.row('name', n)); } catch (e) { await ctx.reply(ui.note('failed: ' + (e.message || e))); }
     },
   },
   {
@@ -17,7 +17,7 @@ module.exports = [
     async handler(ctx) {
       const g = await guard(ctx); if (!g) return;
       const n = body(ctx).slice(0, 2000); if (!n) return ctx.reply(ui.card('Description', [ui.cmd(ctx.prefix, 'setdesc Rules: be kind')], { foot: false }));
-      try { await ctx.sock.groupUpdateDescription(ctx.jid, n); await ctx.reply(ui.row('description', 'updated')); } catch (e) { await ctx.reply(ui.small('failed: ' + (e.message || e))); }
+      try { await ctx.sock.groupUpdateDescription(ctx.jid, n); await ctx.reply(ui.row('description', 'updated')); } catch (e) { await ctx.reply(ui.note('failed: ' + (e.message || e))); }
     },
   },
   {
@@ -41,7 +41,7 @@ module.exports = [
     name: 'owner', pattern: 'owner', aliases: ['creator', 'dev'], category: 'main', desc: 'Send the owner contact', direct: true,
     async handler(ctx) {
       const n = String(ctx.config.ownerNumber || '').replace(/\D/g, '');
-      if (!n) return ctx.reply(ui.small('owner number is not set'));
+      if (!n) return ctx.reply(ui.note('owner number is not set'));
       const vcard = 'BEGIN:VCARD\nVERSION:3.0\nFN:' + ctx.config.botName + ' owner\nTEL;type=CELL;type=VOICE;waid=' + n + ':+' + n + '\nEND:VCARD';
       await ctx.sock.sendMessage(ctx.jid, { contacts: { displayName: ctx.config.botName + ' owner', contacts: [{ vcard }] } });
     },

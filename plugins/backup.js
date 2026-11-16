@@ -19,7 +19,7 @@ module.exports = [
       const s = B.summary(b);
       const to = ctx.group ? ownerJid(ctx.config) : ctx.jid;
       await ctx.sock.sendMessage(to, { document: Buffer.from(JSON.stringify(b)), mimetype: 'application/json', fileName: B.fileName(full), caption: ui.card('Backup', [ui.row('files', s.files), full ? ui.row('session', s.session + ' files') : ui.small('settings only, no login'), '', ui.small('Save this file somewhere safe. Reply to it with ' + ctx.prefix + 'restore' + (full ? ' full' : '') + '.'), full ? ui.small('This contains your WhatsApp login. Never share it.') : ''].filter((x) => x !== ''), { foot: false }) });
-      if (ctx.group) await ctx.reply(ui.small('backup sent to your DM'));
+      if (ctx.group) await ctx.reply(ui.note('backup sent to your DM'));
       else if (!full) await native.buttons(ctx, { title: 'Backup', body: ui.small('Settings backup is above. Full includes the WhatsApp login so you can skip pairing.'), footer: ctx.config.botName, buttons: [{ id: ctx.prefix + 'backup full', text: 'Full backup' }, { id: ctx.prefix + 'autobackup 24', text: 'Auto daily' }] });
     },
   },
@@ -29,7 +29,7 @@ module.exports = [
       const f = media.findMedia(ctx.m);
       if (!f || f.kind !== 'document') return ctx.reply(ui.card('Restore', [ui.small('reply to a backup file with ' + ctx.prefix + 'restore'), ui.small('add "full" to also restore the WhatsApp login')], { foot: false }));
       let obj;
-      try { obj = B.validate(B.parse(await media.download(ctx.sock, f))); } catch (e) { return ctx.reply(ui.small('not a valid backup: ' + (e.message || e))); }
+      try { obj = B.validate(B.parse(await media.download(ctx.sock, f))); } catch (e) { return ctx.reply(ui.note('not a valid backup: ' + (e.message || e))); }
       const withSession = (ctx.args[0] || '').toLowerCase() === 'full';
       const r = B.restore(obj, { ...dirs(), withSession });
       const needs = r.session > 0;

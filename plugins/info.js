@@ -4,7 +4,7 @@ const web = require('../lib/web');
 const { ctxInfo } = require('../lib/target');
 
 const use = (ctx, t, ex) => ctx.reply(ui.card(t, [ui.cmd(ctx.prefix, ex)], { foot: false }));
-const fail = (ctx, e) => ctx.reply(ui.small(String((e && e.message) || e)));
+const fail = (ctx, e) => ctx.reply(ui.note(String((e && e.message) || e)));
 const n1 = (x) => Math.round(x * 10) / 10;
 
 function quotedText(m) {

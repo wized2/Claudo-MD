@@ -29,7 +29,7 @@ module.exports = [
       const p = ctx.prefix; const k = (ctx.args[0] || '').toLowerCase();
       if (!GAMES[k]) return ctx.reply(ui.card('Play', [ui.small('choose one of:'), ...Object.keys(GAMES).map((x) => ui.cmd(p, 'play ' + x))], { foot: false }));
       const file = path.join(DIR, k + '.html');
-      if (!fs.existsSync(file)) return ctx.reply(ui.small('game file missing'));
+      if (!fs.existsSync(file)) return ctx.reply(ui.note('game file missing'));
       const [title, desc] = GAMES[k];
       const html = fs.readFileSync(file, 'utf8');
       const mode = (ctx.args[1] || '').toLowerCase();

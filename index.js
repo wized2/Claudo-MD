@@ -192,9 +192,9 @@ async function startBot() {
         const p = hit.plugin;
         if (features.isPrivate() && !ctx.isOwner) continue;
         if (!ctx.isOwner && (settingsStore.get('banned') || []).includes(String(sender).split('@')[0].split(':')[0].replace(/\D/g, ''))) continue;
-        if (p.owner && !ctx.isOwner) { await send(ui.small('owner only')); continue; }
+        if (p.owner && !ctx.isOwner) { await send(ui.note('owner only')); continue; }
         if (features.on('typing')) sock.sendPresenceUpdate('composing', jid).catch(() => {});
-        if (p.group && !group) { await send(ui.small('groups only')); continue; }
+        if (p.group && !group) { await send(ui.note('groups only')); continue; }
         if (!antiBan.allowCommand(jid).ok) continue;
         console.log('[cmd]', hit.cmd, 'by', sender);
         await p.handler(ctx);

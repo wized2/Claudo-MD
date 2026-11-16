@@ -22,7 +22,7 @@ module.exports = [
       try {
         const s = await img.shorten(u);
         await native.buttons(ctx, { title: 'Short link', body: ui.card('Short link', [s], { foot: false }), footer: ctx.config.botName, buttons: [{ text: 'Open', url: s }, { text: 'Copy', copy: s }] });
-      } catch (e) { await ctx.reply(ui.small('could not shorten: ' + (e.message || e))); }
+      } catch (e) { await ctx.reply(ui.note('could not shorten: ' + (e.message || e))); }
     },
   },
   {
@@ -31,7 +31,7 @@ module.exports = [
       const f = media.findMedia(ctx.m);
       if (!f || f.kind !== 'image') return need(ctx, 'Sticker maker');
       try { await ctx.reply({ sticker: await img.toSticker(await media.download(ctx.sock, f)) }); }
-      catch (e) { await ctx.reply(ui.small('could not make the sticker: ' + (e.message || e))); }
+      catch (e) { await ctx.reply(ui.note('could not make the sticker: ' + (e.message || e))); }
     },
   },
   {
@@ -40,7 +40,7 @@ module.exports = [
       const f = media.findMedia(ctx.m);
       if (!f || f.kind !== 'sticker') return need(ctx, 'Sticker to image');
       try { await ctx.reply({ image: await img.stickerToPng(await media.download(ctx.sock, f)) }); }
-      catch (e) { await ctx.reply(ui.small('could not convert: ' + (e.message || e))); }
+      catch (e) { await ctx.reply(ui.note('could not convert: ' + (e.message || e))); }
     },
   },
   {
@@ -53,7 +53,7 @@ module.exports = [
         const cap = (f.node && f.node.caption) || '';
         const body = f.kind === 'image' ? { image: buf, caption: cap } : f.kind === 'video' ? { video: buf, caption: cap } : { audio: buf, mimetype: 'audio/ogg; codecs=opus', ptt: !!(f.node && f.node.ptt) };
         await ctx.reply(body);
-      } catch (e) { await ctx.reply(ui.small('could not open it: ' + (e.message || e))); }
+      } catch (e) { await ctx.reply(ui.note('could not open it: ' + (e.message || e))); }
     },
   },
 ];

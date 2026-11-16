@@ -35,7 +35,7 @@ module.exports = [
         return native.list(ctx, { title: 'Mini apps', body: ui.card('Mini apps', [ui.small('Work fully on your phone, no internet needed.'), '', ...lines], { foot: false }), footer: ctx.config.botName, button: 'Pick an app', sections: [{ title: 'Offline tools', rows }] });
       }
       const file = path.join(DIR, k + '.html');
-      if (!fs.existsSync(file)) return ctx.reply(ui.small('app file missing'));
+      if (!fs.existsSync(file)) return ctx.reply(ui.note('app file missing'));
       const [title, desc] = APPS[k];
       const html = fs.readFileSync(file, 'utf8');
       let inChat = false;

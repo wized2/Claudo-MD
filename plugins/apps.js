@@ -63,7 +63,7 @@ module.exports = [
     async handler(ctx) {
       try {
         await ctx.reply(ui.card('Calculator', [ui.row('expr', ctx.arg), ui.row('result', ui.bold(String(calc(ctx.arg))))]));
-      } catch (e) { await ctx.reply(ui.small(e.message)); }
+      } catch (e) { await ctx.reply(ui.note(e.message)); }
     },
   },
 ];

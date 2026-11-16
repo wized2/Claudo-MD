@@ -22,7 +22,7 @@ module.exports = [
         const buf = Buffer.from(await r.arrayBuffer());
         if (buf.length < 500) throw new Error('empty audio');
         await ctx.reply({ audio: buf, mimetype: 'audio/mpeg', fileName: 'tts.mp3' });
-      } catch (e) { await ctx.reply(ui.small('tts failed: ' + (e.message || e))); }
+      } catch (e) { await ctx.reply(ui.note('tts failed: ' + (e.message || e))); }
     },
   },
   {
@@ -50,7 +50,7 @@ module.exports = [
     name: 'ban', pattern: 'ban', category: 'owner', owner: true, desc: 'Block a number from using the bot', usage: 'ban <number|reply|mention>', direct: false,
     async handler(ctx) {
       const t = await require('../lib/target').resolveTarget(ctx, { allowSelfDm: false });
-      if (!t || t.error || !t.number) return ctx.reply(ui.small((t && t.error) || 'give a number, mention or reply'));
+      if (!t || t.error || !t.number) return ctx.reply(ui.note((t && t.error) || 'give a number, mention or reply'));
       const d = digits(t.number); const list = new Set(settings.get('banned') || []); list.add(d); settings.set('banned', [...list]);
       await ctx.reply(ui.row('banned', d));
     },
@@ -59,7 +59,7 @@ module.exports = [
     name: 'unban', pattern: 'unban', category: 'owner', owner: true, desc: 'Allow a banned number again', usage: 'unban <number|reply|mention>',
     async handler(ctx) {
       const t = await require('../lib/target').resolveTarget(ctx, { allowSelfDm: false });
-      if (!t || t.error || !t.number) return ctx.reply(ui.small((t && t.error) || 'give a number, mention or reply'));
+      if (!t || t.error || !t.number) return ctx.reply(ui.note((t && t.error) || 'give a number, mention or reply'));
       const list = (settings.get('banned') || []).filter((x) => x !== digits(t.number));
       settings.set('banned', list);
       await ctx.reply(ui.row('banned now', list.length));

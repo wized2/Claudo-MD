@@ -21,7 +21,7 @@ module.exports = [
     async handler(ctx) {
       const [mode, ...rest] = ctx.args; const t = rest.join(' ');
       if (!/^(enc|encode|dec|decode)$/i.test(mode || '') || !t) return use(ctx, 'Base64', 'base64 enc hello');
-      try { await ctx.reply(/^enc/i.test(mode) ? Buffer.from(t, 'utf8').toString('base64') : Buffer.from(t, 'base64').toString('utf8')); } catch (e) { await ctx.reply(ui.small('invalid input')); }
+      try { await ctx.reply(/^enc/i.test(mode) ? Buffer.from(t, 'utf8').toString('base64') : Buffer.from(t, 'base64').toString('utf8')); } catch (e) { await ctx.reply(ui.note('invalid input')); }
     },
   },
   {
@@ -46,9 +46,9 @@ module.exports = [
     async handler(ctx) {
       let u = (ctx.args[0] || '').trim(); if (!u) return use(ctx, 'Screenshot', 'ssweb example.com');
       if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
-      try { const x = new URL(u); if (!/\./.test(x.hostname)) throw 0; } catch (e) { return ctx.reply(ui.small('that does not look like a link')); }
+      try { const x = new URL(u); if (!/\./.test(x.hostname)) throw 0; } catch (e) { return ctx.reply(ui.note('that does not look like a link')); }
       try { await ctx.reply({ image: { url: 'https://image.thum.io/get/width/1280/crop/800/noanimate/' + u }, caption: ui.card('Screenshot', [ui.small(u.slice(0, 120))], { foot: false }) }); }
-      catch (e) { await ctx.reply(ui.small('could not capture that page')); }
+      catch (e) { await ctx.reply(ui.note('could not capture that page')); }
     },
   },
   {
@@ -67,7 +67,7 @@ module.exports = [
       try {
         const r = remind.add(ctx.sock, { jid: ctx.jid, who: ctx.sender, text: ctx.args.slice(i).join(' '), ms });
         await native.buttons(ctx, { title: 'Reminder set', body: ui.card('Reminder set', [ui.row('in', left(ms)), r.text ? ui.row('note', r.text) : '', ui.row('id', r.id)].filter(Boolean), { foot: false }), footer: ctx.config.botName, buttons: [{ id: ctx.prefix + 'remind list', text: 'My reminders' }, { id: ctx.prefix + 'remind cancel ' + r.id, text: 'Cancel' }] });
-      } catch (e) { await ctx.reply(ui.small(e.message)); }
+      } catch (e) { await ctx.reply(ui.note(e.message)); }
     },
   },
 ];

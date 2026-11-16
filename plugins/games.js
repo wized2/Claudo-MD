@@ -33,26 +33,26 @@ module.exports = [
     async handler(ctx) {
       const p = ctx.prefix; const key = 'ttt:' + ctx.jid; const sub = (ctx.args[0] || '').toLowerCase();
       let g = sess.get(key);
-      if (sub === 'end') { sess.del(key); return ctx.reply(ui.small('game ended')); }
+      if (sub === 'end') { sess.del(key); return ctx.reply(ui.note('game ended')); }
       if (!sub || sub === 'bot') {
-        if (g) return ctx.reply(ui.small('a game is running. ' + p + 'ttt end to stop it'));
+        if (g) return ctx.reply(ui.note('a game is running. ' + p + 'ttt end to stop it'));
         g = { b: Array(9).fill(null), x: ctx.sender, o: sub === 'bot' ? 'bot' : null, turn: 'X' };
         sess.set(key, g);
         if (g.o) return tttShow(ctx, g);
         return native.buttons(ctx, { title: 'Tic Tac Toe', body: ui.card('Tic Tac Toe', [tag(ctx.sender) + ' wants to play.', ui.small('Tap Join to be the second player')], { foot: false }), footer: ctx.config.botName, buttons: [{ id: p + 'ttt join', text: 'Join' }, { id: p + 'ttt bot', text: 'Play bot' }] });
       }
-      if (!g) return ctx.reply(ui.small('no game. start with ' + p + 'ttt'));
+      if (!g) return ctx.reply(ui.note('no game. start with ' + p + 'ttt'));
       if (sub === 'join') {
-        if (g.o) return ctx.reply(ui.small('game already has two players'));
-        if (num(ctx.sender) === num(g.x)) return ctx.reply(ui.small('you started it. wait for an opponent or use ' + p + 'ttt bot'));
+        if (g.o) return ctx.reply(ui.note('game already has two players'));
+        if (num(ctx.sender) === num(g.x)) return ctx.reply(ui.note('you started it. wait for an opponent or use ' + p + 'ttt bot'));
         g.o = ctx.sender; return tttShow(ctx, g);
       }
       const n = parseInt(sub, 10);
-      if (!(n >= 1 && n <= 9)) return ctx.reply(ui.small('cell 1 to 9'));
-      if (!g.o) return ctx.reply(ui.small('waiting for an opponent'));
+      if (!(n >= 1 && n <= 9)) return ctx.reply(ui.note('cell 1 to 9'));
+      if (!g.o) return ctx.reply(ui.note('waiting for an opponent'));
       const who = g.turn === 'X' ? g.x : g.o;
-      if (num(who) !== num(ctx.sender)) return ctx.reply(ui.small('not your turn'));
-      if (g.b[n - 1]) return ctx.reply(ui.small('cell taken'));
+      if (num(who) !== num(ctx.sender)) return ctx.reply(ui.note('not your turn'));
+      if (g.b[n - 1]) return ctx.reply(ui.note('cell taken'));
       g.b[n - 1] = g.turn; g.turn = g.turn === 'X' ? 'O' : 'X'; sess.touch(key);
       let end = finish(ctx, g, key);
       if (!end && (g.turn === 'X' ? g.x : g.o) === 'bot') {
@@ -68,7 +68,7 @@ module.exports = [
       const key = 'guess:' + ctx.jid + ':' + num(ctx.sender); let g = sess.get(key); const a = ctx.args[0];
       if (!a || !g) { g = sess.set(key, { n: 1 + Math.floor(Math.random() * 100), tries: 0 }); if (!a) return ctx.reply(ui.card('Guess', [ui.small('I picked a number from 1 to 100'), ui.cmd(ctx.prefix, 'guess 50')], { foot: false })); }
       const v = parseInt(a, 10);
-      if (!(v >= 1 && v <= 100)) return ctx.reply(ui.small('a number from 1 to 100'));
+      if (!(v >= 1 && v <= 100)) return ctx.reply(ui.note('a number from 1 to 100'));
       g.tries++;
       if (v === g.n) { sess.del(key); return ctx.reply(ui.card('Correct', [ui.row('number', g.n), ui.row('tries', g.tries)], { foot: false })); }
       const close = 1 - Math.abs(v - g.n) / 100;
@@ -80,7 +80,7 @@ module.exports = [
     async handler(ctx) {
       const p = ctx.prefix; const key = 'trivia:' + ctx.jid; const a = ctx.args;
       if (a[0] === 'a' && a[1] != null) {
-        const q = sess.get(key); if (!q) return ctx.reply(ui.small('no open question. ' + p + 'trivia'));
+        const q = sess.get(key); if (!q) return ctx.reply(ui.note('no open question. ' + p + 'trivia'));
         sess.del(key); const ok = parseInt(a[1], 10) === q.ans;
         return native.buttons(ctx, { title: ok ? 'Correct' : 'Wrong', body: ui.card(ok ? 'Correct' : 'Wrong', [ui.row('answer', q.opts[q.ans])], { foot: false }), footer: ctx.config.botName, buttons: [{ id: p + 'trivia', text: 'Next question' }] });
       }

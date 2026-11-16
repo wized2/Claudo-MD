@@ -2,8 +2,8 @@ const native = require('../lib/native');
 const ui = require('../lib/ui');
 const api = require('../lib/apis');
 
-const fail = (ctx, e) => ctx.reply(ui.small('request failed: ' + (e.message || e)));
-const nf = (ctx, what) => ctx.reply(ui.small(what + ' not found'));
+const fail = (ctx, e) => ctx.reply(ui.note('request failed: ' + (e.message || e)));
+const nf = (ctx, what) => ctx.reply(ui.note(what + ' not found'));
 const usage = (ctx, t, ex) => ctx.reply(ui.card(t, [ui.cmd(ctx.prefix, ex)], { foot: false }));
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
