@@ -13,6 +13,7 @@ const forward = require('./lib/forward');
 const botState = require('./lib/botState');
 const protect = require('./lib/protect');
 const backup = require('./lib/backup');
+const features = require('./lib/features');
 const settingsStore = require('./lib/settings');
 const jsonStore = require('./lib/jsonStore');
 const { isOwner } = require('./lib/owner');
@@ -137,6 +138,8 @@ async function startBot() {
     }
   });
 
+  sock.ev.on('call', (calls) => { features.onCall(sock, calls).catch(() => {}); });
+
   sock.ev.on('group-participants.update', (ev) => { protect.onParticipants(sock, ev, config).catch((e) => console.warn('[welcome]', e.message)); });
 
   sock.ev.on('messages.upsert', async ({ messages, type }) => {
@@ -145,12 +148,14 @@ async function startBot() {
         if (!m || !m.message) continue;
         msgStore.put(m);
         const jid = m.key && m.key.remoteJid;
-        if (!jid || jid === 'status@broadcast' || m.message.protocolMessage || m.message.reactionMessage) continue;
+        if (m.message.protocolMessage) { features.onRevoke(sock, m, config).catch(() => {}); continue; }
+        if (!jid || jid === 'status@broadcast' || m.message.reactionMessage) continue;
         if (jid.includes('@newsletter')) {
           await engine.handleMessage(sock, m, config).catch((e) => console.error('[cfwd]', e.message));
           continue;
         }
         if (type !== 'notify' && type !== 'append') continue;
+        if (type === 'notify' && !m.key.fromMe && features.on('autoread')) sock.readMessages([m.key]).catch(() => {});
         const text = extractText(m.message).trim();
         if (!text) continue;
         if (jid.endsWith('@g.us') && !botState.isIdle()) {
@@ -173,7 +178,9 @@ async function startBot() {
         const ctx = { sock, m, jid, sender, text, arg: hit.arg, args: hit.args || [], cmd: hit.cmd, config, plugins, group, ui, startedAt, prefix: config.prefix, reply: send };
         ctx.isOwner = isOwner(ctx);
         const p = hit.plugin;
+        if (features.isPrivate() && !ctx.isOwner) continue;
         if (p.owner && !ctx.isOwner) { await send(ui.small('owner only')); continue; }
+        if (features.on('typing')) sock.sendPresenceUpdate('composing', jid).catch(() => {});
         if (p.group && !group) { await send(ui.small('groups only')); continue; }
         if (!antiBan.allowCommand(jid).ok) continue;
         console.log('[cmd]', hit.cmd, 'by', sender);

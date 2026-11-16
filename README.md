@@ -42,3 +42,6 @@ Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot
 
 ## Offline mini apps
 `.mini` opens a list. `.mini calc|clock|tip|units|pass|bmi|age|counter|dice|sci|color|decide` sends a self-contained HTML app (calculator, stopwatch and timer, tip split, unit converter, password maker, BMI, age, tally counter, dice). Every control is a tap button, none needs swiping. They need no data from the bot or internet; if the in-chat render is unsupported the app is sent as an `.html` file.
+
+## Settings (owner)
+`.settings` opens a tap list: **mode** public/private (private = only you can use commands), **auto read**, **typing status**, **anti call** (rejects calls with a note) and **anti delete** (forwards deleted messages to your DM, for messages the bot has seen since it started). Also `.settings <feature> on|off`.

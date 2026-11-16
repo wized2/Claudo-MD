@@ -243,3 +243,33 @@ test('mini apps: every app file exists, list and send-as-file work', async () =>
   await mini.handler({ ...base, args: ['timer', 'file'] });
   assert.ok(out.some((o) => o && o.document && o.fileName === 'Stopwatch and Timer.html'));
 });
+
+test('features: antidelete forwards, anticall rejects, settings toggles', async () => {
+  const fs = require('fs'), os = require('os');
+  process.env.FORWARDS_JSON = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'ft-')), 'channel-forwards.json');
+  const settings = require('../lib/settings');
+  const F = require('../lib/features');
+  const sent = [];
+  const sock = { sendMessage: async (to, c) => sent.push([to, c]), rejectCall: async (...a) => sent.push(['reject', a]) };
+  const key = { remoteJid: 'g@g.us', id: 'D1', participant: '9211@s.whatsapp.net' };
+  const m = { message: { protocolMessage: { type: 0, key } } };
+  const store = { getMessage: async () => ({ conversation: 'secret' }) };
+  settings.set('antidelete', false);
+  assert.equal(await F.onRevoke(sock, m, { ownerNumber: '9230' }, store), false);
+  settings.set('antidelete', true);
+  assert.equal(await F.onRevoke(sock, m, { ownerNumber: '9230' }, store), true);
+  assert.equal(sent[1][0], '9230@s.whatsapp.net'); assert.ok(sent[1][1].forward);
+  assert.equal(await F.onRevoke(sock, { message: { protocolMessage: { type: 0, key: { ...key, fromMe: true } } } }, { ownerNumber: '9230' }, store), false);
+  settings.set('anticall', true);
+  assert.equal(await F.onCall(sock, [{ id: 'c1', from: 'x@s.whatsapp.net', status: 'offer' }, { id: 'c2', from: 'y@s.whatsapp.net', status: 'ringing' }]), 1);
+  const { loadPlugins } = require('../lib/pluginLoader');
+  const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
+  const out = [];
+  const ctx = { jid: 'o@s.whatsapp.net', sender: 'o@s.whatsapp.net', prefix: '.', config: { prefix: '.', botName: 'B' }, sock: { sendMessage: async (_, c) => out.push(c), relayMessage: async () => {} }, reply: async (x) => out.push(x), m: { message: {} } };
+  await ps.find((p) => p.name === 'settings').handler({ ...ctx, args: ['mode', 'private'] });
+  assert.equal(F.isPrivate(), true);
+  await ps.find((p) => p.name === 'settings').handler({ ...ctx, args: ['autoread', 'on'] });
+  assert.equal(F.on('autoread'), true);
+  await ps.find((p) => p.name === 'settings').handler({ ...ctx, args: ['mode', 'public'] });
+  assert.equal(F.isPrivate(), false);
+});
