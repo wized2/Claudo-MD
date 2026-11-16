@@ -53,7 +53,7 @@ Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot
 | Command | What it does | Source |
 |---|---|---|
 | `.prayer [city[, country]]` | Prayer times and Hijri date (default Karachi, `PRAYER_COUNTRY`, `PRAYER_METHOD`) | aladhan.com |
-| `.ayah 2:255` / `.ayah random` | Quran verse, Arabic plus English | alquran.cloud |
+| `.ayah 2:255` / `.ayah random` | Quran verse, Arabic plus Urdu (Jalandhry) | alquran.cloud |
 | `.github <user \| owner/repo>` | Profile or repo stats | api.github.com |
 | `.pokemon <name\|id>` | Pokedex card with art | pokeapi.co |
 | `.crypto <symbol>` | Spot price and 24h change | Binance public API |
@@ -67,4 +67,4 @@ Copy `katabump.js` to the host root as `index.js`. It clones this repo into `bot
 | `.ban` / `.unban` | Owner only. Blocked numbers are ignored by the bot (number, mention or reply) |
 
 ## Islamic category
-`.prayer`, `.ayah`, `.hadith [number|random]` (Sahih al-Bukhari, Arabic and English via the fawazahmed0 hadith API on jsDelivr), `.qibla [city]` (bearing from aladhan.com) and the `.mini tasbih` counter (33, 99 or 100 targets, rounds, undo). They appear under `.menu islam`.
+`.prayer`, `.ayah`, `.hadith [number|random]` (Sahih al-Bukhari, Arabic with Urdu translation via the fawazahmed0 hadith API on jsDelivr), `.qibla [city]` (bearing from aladhan.com) and the `.mini tasbih` counter (33, 99 or 100 targets, rounds, undo). They appear under `.menu islam`.

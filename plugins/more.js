@@ -19,24 +19,24 @@ module.exports = [
     },
   },
   {
-    name: 'ayah', pattern: 'ayah', aliases: ['quran', 'verse'], category: 'islam', desc: 'Quran verse, e.g. 2:255 or random', usage: 'ayah <surah:ayah|random>', direct: true,
+    name: 'ayah', pattern: 'ayah', aliases: ['quran', 'verse'], category: 'islam', desc: 'Quran verse with Urdu translation, e.g. 2:255 or random', usage: 'ayah <surah:ayah|random>', direct: true,
     async handler(ctx) {
       let ref = (ctx.args[0] || '').toLowerCase();
       if (!ref) return usage(ctx, 'Quran', 'ayah 2:255');
       if (ref === 'random') ref = String(1 + Math.floor(Math.random() * 6236));
       let r; try { r = await api.ayah(ref); } catch (e) { return fail(ctx, e); }
       if (!r) return nf(ctx, 'verse');
-      await native.buttons(ctx, { title: 'Quran', body: ui.card(r.surah + ' ' + r.surahNo + ':' + r.n, [r.arabic, '', ui.small(r.english)], { foot: false }), footer: ctx.config.botName, buttons: [{ id: ctx.prefix + 'ayah random', text: 'Another' }, { id: ctx.prefix + 'prayer', text: 'Prayer times' }] });
+      await native.buttons(ctx, { title: 'Quran', body: ui.card(r.surah + ' ' + r.surahNo + ':' + r.n, [r.arabic, '', ui.small(r.urdu)], { foot: false }), footer: ctx.config.botName, buttons: [{ id: ctx.prefix + 'ayah random', text: 'Another' }, { id: ctx.prefix + 'prayer', text: 'Prayer times' }] });
     },
   },
   {
-    name: 'hadith', pattern: 'hadith', aliases: ['bukhari'], category: 'islam', desc: 'Sahih al-Bukhari hadith by number or random', usage: 'hadith [number|random]', direct: true,
+    name: 'hadith', pattern: 'hadith', aliases: ['bukhari'], category: 'islam', desc: 'Sahih al-Bukhari hadith with Urdu translation', usage: 'hadith [number|random]', direct: true,
     async handler(ctx) {
       const a = (ctx.args[0] || 'random').toLowerCase();
       const n = a === 'random' ? 1 + Math.floor(Math.random() * 7563) : parseInt(a, 10);
       let r; try { r = await api.hadith(n); } catch (e) { return fail(ctx, e); }
       if (!r) return nf(ctx, 'hadith');
-      const body = [r.arabic ? r.arabic.slice(0, 700) : '', r.arabic ? '' : null, ui.small(r.english.length > 1200 ? r.english.slice(0, 1200) + '...' : r.english), '', ui.small('Sahih al-Bukhari ' + r.n)].filter((x) => x !== null);
+      const body = [r.arabic ? r.arabic.slice(0, 700) : '', r.arabic ? '' : null, ui.small(r.urdu.length > 1200 ? r.urdu.slice(0, 1200) + '...' : r.urdu), '', ui.small('Sahih al-Bukhari ' + r.n)].filter((x) => x !== null);
       await native.buttons(ctx, { title: 'Hadith', body: ui.card('Hadith ' + r.n, body, { foot: false }), footer: ctx.config.botName, buttons: [{ id: ctx.prefix + 'hadith random', text: 'Another' }, { id: ctx.prefix + 'hadith ' + (r.n + 1), text: 'Next' }] });
     },
   },

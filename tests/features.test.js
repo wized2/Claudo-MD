@@ -304,7 +304,7 @@ test('api helpers parse prayer, ayah, github, pokemon, crypto and handle 404', a
   const p = await api.prayer('Lahore, Pakistan', J({ data: { timings: { Fajr: '05:30', Sunrise: '06:49', Dhuhr: '12:17', Asr: '15:23', Maghrib: '17:44', Isha: '19:03' }, date: { readable: '16 Nov 2026', hijri: { date: '06-06-1448' } }, meta: { timezone: 'Asia/Karachi' } } }));
   assert.equal(p.times.Isha, '19:03'); assert.equal(p.city, 'Lahore');
   const a = await api.ayah('2:255', J({ data: [{ text: 'ar', numberInSurah: 255, surah: { englishName: 'Al-Baqara', name: 'x', number: 2 } }, { text: 'en', numberInSurah: 255, surah: {} }] }));
-  assert.equal(a.english, 'en'); assert.equal(await api.ayah('../x'), null);
+  assert.equal(a.urdu, 'en'); assert.equal(await api.ayah('../x'), null);
   const g = await api.github('wized2', J({ login: 'wized2', public_repos: 3, created_at: '2025-11-23T00:00:00Z', html_url: 'u' }));
   assert.equal(g.kind, 'user'); assert.equal(g.since, '2025-11-23');
   assert.equal((await api.github('a/b', J({ full_name: 'a/b', stargazers_count: 5, pushed_at: '2026-01-01T00:00:00Z' }))).kind, 'repo');
@@ -352,7 +352,7 @@ test('hadith and qibla helpers', async () => {
   const api = require('../lib/apis');
   const J = (o) => async () => ({ ok: true, status: 200, json: async () => o });
   const h = await api.hadith(1, J({ hadiths: [{ hadithnumber: 1, text: ' Deeds depend on intentions ', reference: { book: 1, hadith: 1 } }] }));
-  assert.equal(h.english, 'Deeds depend on intentions'); assert.equal(h.book, 1);
+  assert.equal(h.urdu, 'Deeds depend on intentions'); assert.equal(h.book, 1);
   const h2 = await api.hadith(5, J({ hadithnumber: 5, text: 'x' }));
   assert.equal(h2.n, 5);
   assert.equal(await api.hadith(0), null); assert.equal(await api.hadith(9999), null);
