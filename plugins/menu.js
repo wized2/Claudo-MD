@@ -53,8 +53,11 @@ function cardLinesForAll(by, cats, p) {
 
 // Text-first: in text mode the card already lists every command, so send it as is.
 // With `.ui native` the same card gets tappable lists/buttons.
+// The guard keeps .menu alive if this plugin hot-reloads before lib/native.js is reloaded (during an update).
+const nativeOn = () => typeof native.enabled === 'function' && native.enabled();
+
 function show(kind, ctx, spec) {
-  if (!native.enabled()) return ctx.reply(spec.body);
+  if (!nativeOn()) return ctx.reply(spec.body);
   return native[kind](ctx, spec);
 }
 
@@ -144,7 +147,7 @@ module.exports = [
       });
 
       // Quick-reply shortcuts, only with native buttons on
-      if (!native.enabled()) return;
+      if (!nativeOn()) return;
       try {
         await show('buttons', ctx, {
           title: name,
