@@ -89,3 +89,6 @@ Every reply uses the same look from `lib/ui.js`: a left-rail card (`╭─❖ TI
 
 ## Anti spam and search
 `.antispam off|warn|kick` (group admins): more than 6 messages in 8 seconds are deleted, with a warning; in kick mode the third strike removes the sender. Admins and the owner are exempt and the bot must be an admin. `.find <word>` searches commands by name, alias or description.
+
+## Buttons vs text
+The bot is text-first: every reply and `.menu` work as plain cards, so nothing depends on how your WhatsApp renders interactive messages. Owners can turn on native lists and buttons with `.ui native` (and back with `.ui text`). If tapping does nothing on your phone, keep text mode.

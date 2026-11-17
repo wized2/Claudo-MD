@@ -51,6 +51,13 @@ function cardLinesForAll(by, cats, p) {
   return lines;
 }
 
+// Text-first: in text mode the card already lists every command, so send it as is.
+// With `.ui native` the same card gets tappable lists/buttons.
+function show(kind, ctx, spec) {
+  if (!native.enabled()) return ctx.reply(spec.body);
+  return native[kind](ctx, spec);
+}
+
 module.exports = [
   {
     name: 'menu',
@@ -99,7 +106,7 @@ module.exports = [
           title: p + x.pattern,
           description: (x.desc || '').slice(0, 72),
         }));
-        return native.list(ctx, {
+        return show('list', ctx, {
           title: label,
           body,
           footer: name,
@@ -111,7 +118,7 @@ module.exports = [
       // Main menu — interactive category picker (bot UI card + native list)
       const overview = cats.map((c) => {
         const [label] = CATS[c] || [c];
-        return ui.row(label, by[c].length + ' cmds');
+        return ui.cmd(p, 'menu ' + c, label + '  ' + by[c].length);
       });
       const body = ui.card(name, [
         ui.small(sub),
@@ -128,7 +135,7 @@ module.exports = [
       }));
 
       // Prefer interactive list; native.list falls back to card text automatically
-      await native.list(ctx, {
+      await show('list', ctx, {
         title: name,
         body,
         footer: name,
@@ -136,9 +143,10 @@ module.exports = [
         sections: [{ title: 'Menu', rows }],
       });
 
-      // Quick-reply shortcuts (also falls back to text if needed)
+      // Quick-reply shortcuts, only with native buttons on
+      if (!native.enabled()) return;
       try {
-        await native.buttons(ctx, {
+        await show('buttons', ctx, {
           title: name,
           body: ui.card('Shortcuts', [
             ui.small('Jump without opening the list'),
@@ -163,7 +171,7 @@ module.exports = [
     async handler(ctx) {
       const q = (ctx.args[0] || '').toLowerCase().replace(/^\./, '');
       if (!q) {
-        return native.buttons(ctx, {
+        return show('buttons', ctx, {
           title: 'Usage',
           body: ui.card('Usage', [ui.cmd(ctx.prefix, 'usage calc'), ui.small('Show help for any command')], { foot: false }),
           footer: ctx.config.botName,
@@ -192,7 +200,7 @@ module.exports = [
         x.group ? ui.row('where', 'groups only') : '',
       ].filter(Boolean);
       const body = ui.card(ctx.prefix + x.pattern, lines, { foot: ctx.prefix + 'menu' });
-      return native.buttons(ctx, {
+      return show('buttons', ctx, {
         title: ctx.prefix + x.pattern,
         body,
         footer: ctx.config.botName,
@@ -213,7 +221,7 @@ module.exports = [
     async handler(ctx) {
       const q = ctx.args.join(' ').toLowerCase().trim();
       if (!q) {
-        return native.buttons(ctx, {
+        return show('buttons', ctx, {
           title: 'Find',
           body: ui.card('Find', [ui.cmd(ctx.prefix, 'find download'), ui.small('Search commands by word')], { foot: false }),
           footer: ctx.config.botName,
@@ -239,7 +247,7 @@ module.exports = [
         title: ctx.prefix + x.pattern,
         description: (x.desc || '').slice(0, 72),
       }));
-      return native.list(ctx, {
+      return show('list', ctx, {
         title: 'Find',
         body,
         footer: ctx.config.botName,

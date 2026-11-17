@@ -287,7 +287,7 @@ test('apk: search parsing, package lookup, plugin sends document or link', async
     const { loadPlugins } = require('../lib/pluginLoader');
     const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
     const out = [];
-    const ctx = { jid: 'a@s.whatsapp.net', sender: 'a@s.whatsapp.net', prefix: '.', config: { prefix: '.', botName: 'B' }, sock: { sendMessage: async (_, c) => out.push(c), relayMessage: async () => {} }, reply: async (x) => out.push(x), m: { message: {} } };
+    const ctx = { jid: 'a@s.whatsapp.net', sender: 'a@s.whatsapp.net', prefix: '.', config: { prefix: '.', botName: 'B' }, sock: { sendMessage: async (_, c) => out.push(c), relayMessage: async (_, m) => out.push(m) }, reply: async (x) => out.push(x), m: { message: {} } };
     await ps.find((p) => p.name === 'apk').handler({ ...ctx, args: ['a'] });
     await ps.find((p) => p.name === 'apkget').handler({ ...ctx, args: ['com.a.b'] });
     assert.ok(out.some((o) => o && o.document && /\.apk$/.test(o.fileName) && o.mimetype.includes('android.package-archive')));

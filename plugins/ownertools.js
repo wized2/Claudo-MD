@@ -15,10 +15,6 @@ module.exports = [
     },
   },
   {
-    name: 'restart', pattern: 'restart', aliases: ['reboot'], category: 'owner', owner: true, desc: 'Restart the bot process', direct: false,
-    async handler(ctx) { await ctx.reply(ui.note('restarting, back in a moment')); setTimeout(() => process.exit(0), 1200); },
-  },
-  {
     name: 'broadcast', pattern: 'broadcast', aliases: ['bc'], category: 'owner', owner: true, desc: 'Send a message to all groups (slowly)', usage: 'broadcast <text>',
     async handler(ctx) {
       const t = ctx.args.join(' ').trim();

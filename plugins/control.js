@@ -103,7 +103,7 @@ module.exports = [
       const v = (ctx.args[0] || '').toLowerCase();
       if (v !== 'native' && v !== 'text') {
         return ctx.reply(
-          ui.row('interface', settings.get('native') === false ? 'text' : 'native') +
+          ui.row('interface', settings.get('native') === true ? 'native' : 'text') +
             '\n' +
             ui.small(ctx.prefix + 'ui native|text')
         );
