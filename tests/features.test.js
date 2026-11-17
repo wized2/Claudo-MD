@@ -376,8 +376,8 @@ test('text tools, reminders and asma', async () => {
   assert.equal(sent[0][1].text, 'Reminder: tea'); assert.equal(remind.forChat('a@s.whatsapp.net').length, 0);
   assert.throws(() => remind.add(sock, { jid: 'a', text: '', ms: 5 }));
   const r2 = remind.add(sock, { jid: 'b', text: 'x', ms: 60000 }); assert.equal(remind.cancel('b', r2.id), true); remind._clear();
-  const a = await api.asma(1, async () => ({ ok: true, status: 200, json: async () => ({ data: [{ name: 'x', number: 1, transliteration: 'Ar Rahmaan', en: { meaning: 'The Beneficent' } }] }) }));
-  assert.equal(a.meaning, 'The Beneficent'); assert.equal(await api.asma(100), null);
+  const asma = require('../lib/asma');
+  assert.equal(asma.N.length, 99); assert.equal(asma.get(1).translit, 'Ar-Rahman'); assert.ok(asma.get(99).urdu); assert.equal(asma.get(100), null);
   const { loadPlugins } = require('../lib/pluginLoader');
   const ps = loadPlugins(path.join(__dirname, '..', 'plugins'));
   for (const n of ['fancy', 'reverse', 'base64', 'morse', 'binary', 'hash', 'ssweb', 'remind', 'asma']) assert.ok(ps.find((x) => x.name === n), n);

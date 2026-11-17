@@ -61,6 +61,20 @@ const clearSession = () => {
   } catch (_) {}
 };
 
+// Single instance: a leftover bot process using the same session makes WhatsApp drop both in a loop (code 440).
+(function takeOver() {
+  const lockFile = path.join(path.dirname(sessionDir), '.claudo-bot.pid');
+  try {
+    const old = parseInt(fs.readFileSync(lockFile, 'utf8'), 10);
+    if (old && old !== process.pid && old !== process.ppid) {
+      let ours = false;
+      try { ours = /index\.js/.test(fs.readFileSync('/proc/' + old + '/cmdline', 'utf8')); } catch (_) {}
+      if (ours) { console.log('[lock] stopping older bot process', old); try { process.kill(old, 'SIGTERM'); } catch (_) {} }
+    }
+  } catch (_) {}
+  try { fs.writeFileSync(lockFile, String(process.pid)); } catch (_) {}
+})();
+
 const CONTROL = new Set(['stop', 'start', 'status', 'menu', 'help', 'commands', 'm', 'list', 'usage', 'find', 'restart', 'reboot', 'update', 'upgrade', 'pull', 'checkupdate', 'check', 'cu', 'updatecheck', 'refresh', 'reload']);
 
 async function startBot() {
@@ -137,8 +151,10 @@ async function startBot() {
       const code = lastDisconnect && lastDisconnect.error && lastDisconnect.error.output && lastDisconnect.error.output.statusCode;
       const loggedOut = code === DisconnectReason.loggedOut;
       Object.assign(state, { connected: false, user: null, socketReady: false, lastError: String(code || 'unknown'), message: loggedOut ? 'Logged out. Pair again.' : 'Disconnected (' + (code || '?') + '), reconnecting', updatedAt: Date.now() });
+      console.log('[bot] connection closed, code', code || 'unknown');
+      if (code === 440) console.warn('[bot] this session is open somewhere else (440). Stop the other copy of the bot; retrying in 30s');
       if (loggedOut || code === 401) clearSession();
-      if (!loggedOut) setTimeout(() => startBot().catch(console.error), 2500);
+      if (!loggedOut) setTimeout(() => startBot().catch(console.error), code === 440 ? 30000 : 2500);
     }
   });
 

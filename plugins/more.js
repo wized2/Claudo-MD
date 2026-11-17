@@ -50,13 +50,13 @@ module.exports = [
     },
   },
   {
-    name: 'asma', pattern: 'asma', aliases: ['names', 'asmaulhusna'], category: 'islam', desc: '99 names of Allah, by number or random', usage: 'asma [1-99|random]', direct: true,
+    name: 'asma', pattern: 'asma', aliases: ['names', 'asmaulhusna'], category: 'islam', desc: '99 names of Allah with Urdu meaning', usage: 'asma [1-99|random]', direct: true,
     async handler(ctx) {
       const a = (ctx.args[0] || 'random').toLowerCase();
       const n = a === 'random' ? 1 + Math.floor(Math.random() * 99) : parseInt(a, 10);
-      let r; try { r = await api.asma(n); } catch (e) { return fail(ctx, e); }
+      const r = require('../lib/asma').get(n);
       if (!r) return nf(ctx, 'name');
-      await native.buttons(ctx, { title: 'Asma ul Husna', body: ui.card(r.n + ' of 99', [r.arabic, '', ui.row('name', r.translit), r.meaning ? ui.row('meaning', r.meaning + ' (English)') : ''].filter((x) => x !== ''), { foot: false }), footer: ctx.config.botName, buttons: [{ id: ctx.prefix + 'asma random', text: 'Another' }, { id: ctx.prefix + 'asma ' + (r.n % 99 + 1), text: 'Next' }] });
+      await native.buttons(ctx, { title: 'Asma ul Husna', body: ui.card(r.n + ' of 99', [r.arabic, '', ui.row('name', r.translit), ui.row('معنی', r.urdu)], { foot: false }), footer: ctx.config.botName, buttons: [{ id: ctx.prefix + 'asma random', text: 'Another' }, { id: ctx.prefix + 'asma ' + (r.n % 99 + 1), text: 'Next' }] });
     },
   },
   {
